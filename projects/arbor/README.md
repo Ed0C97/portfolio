@@ -5,7 +5,7 @@
 ARBOR is the intelligent search and recommendation engine behind a content
 platform — a personal magazine that surfaces places, brands, and venues a
 reader will love. Under the hood it is a retrieval + ranking system: it has
-to turn a fuzzy human query ("cozy rooftop bar in Roma Norte") into a tight,
+to turn a fuzzy human query ("cozy rooftop bar in Trastevere") into a tight,
 relevant, deduplicated set of results, and it has to do it fast and without
 falling over when an external model provider is slow or down.
 
