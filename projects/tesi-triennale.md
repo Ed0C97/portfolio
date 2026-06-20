@@ -33,4 +33,9 @@ Academic research prototype (thesis project), not production software. Author re
 
 ---
 
+
+## Code sample
+
+A small, IP-safe excerpt is in [`tesi-triennale/`](./tesi-triennale/) — a single-track vehicle dynamics model with Pacejka tyres + RK4, an Unscented Kalman Filter estimation core (Van der Merwe sigma points + chi-squared consistency monitoring), and exact zero-order-hold LPV discretization via the Van Loan matrix-exponential method.
+
 _© 2026 Edoardo Caciolo — all rights reserved. Proprietary and not open source; source code is private and available for review on request._

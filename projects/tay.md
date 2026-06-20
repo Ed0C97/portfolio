@@ -49,4 +49,9 @@ Early-stage development; single-author project under active development, with se
 
 ---
 
+
+## Code sample
+
+A small, IP-safe excerpt is in [`tay/`](./tay/) — a real-time camera-quality engine (Swift/AVFoundation), a RealityKit animation driver, and a per-user LLM rate limiter (Python/FastAPI) — supporting craft with the recognition/anti-counterfeit moat deliberately excluded.
+
 _© 2026 Edoardo Caciolo — all rights reserved. Proprietary and not open source; source code is private and available for review on request._

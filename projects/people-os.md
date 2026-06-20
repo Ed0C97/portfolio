@@ -41,4 +41,9 @@ Working prototype with an automated test suite and a fully offline demo mode. So
 
 ---
 
+
+## Code sample
+
+A small, IP-safe excerpt is in [`people-os/`](./people-os/) — MCP server wiring, a typed LangGraph screening pipeline, and a stratified synthetic-data generator — the supporting craft behind an AI-native people-operations toolkit, with prompts and rubrics deliberately left out.
+
 _© 2026 Edoardo Caciolo — all rights reserved. Proprietary and not open source; source code is private and available for review on request._

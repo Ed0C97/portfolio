@@ -38,4 +38,9 @@ Single-author engineering project, structured and documented like a production s
 
 ---
 
+
+## Code sample
+
+A small, IP-safe excerpt is in [`fast-inference/`](./fast-inference/) — a dynamic request batcher, a pre-allocated GPU tensor pool, and a circuit-breaker health checker.
+
 _© 2026 Edoardo Caciolo — all rights reserved. Proprietary and not open source; source code is private and available for review on request._

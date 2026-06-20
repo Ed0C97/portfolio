@@ -44,4 +44,9 @@ Production application, deployed with custom domains and managed PostgreSQL, and
 
 ---
 
+
+## Code sample
+
+A small, IP-safe excerpt is in [`porfirio-magazine/`](./porfirio-magazine/) — a graceful-degradation Redis cache layer, SQLAlchemy N+1 prevention with threaded-comment assembly, and a memoized Fuse.js fuzzy-search hook.
+
 _© 2026 Edoardo Caciolo — all rights reserved. Proprietary and not open source; source code is private and available for review on request._

@@ -42,4 +42,9 @@ Source code is private and proprietary — code review available on request.
 
 ---
 
+
+## Code sample
+
+A small, IP-safe excerpt is in [`anacleto-instagram/`](./anacleto-instagram/) — typed ABC contracts plus production Graph API and Cloudinary clients with retry/backoff and SDK-or-HTTP fallback.
+
 _© 2026 Edoardo Caciolo — all rights reserved. Proprietary and not open source; source code is private and available for review on request._

@@ -41,4 +41,9 @@ Working personal application, actively developed, with a local web UI and an opt
 
 ---
 
+
+## Code sample
+
+A small, IP-safe excerpt is in [`bot-garage/`](./bot-garage/) — an SSRF-guarded stdlib HTTP client, transparent Fernet field-encryption at the data layer, and a declarative openpyxl theming layer.
+
 _© 2026 Edoardo Caciolo — all rights reserved. Proprietary and not open source; source code is private and available for review on request._

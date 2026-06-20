@@ -47,4 +47,9 @@ Source code private and proprietary (Copyright Edoardo Caciolo) — review avail
 
 ---
 
+
+## Code sample
+
+A small, IP-safe excerpt is in [`sentinel/`](./sentinel/) — an async circuit breaker, a fail-soft multi-backend secret resolver, and a tenant DB-URL resolver with progressive error design.
+
 _© 2026 Edoardo Caciolo — all rights reserved. Proprietary and not open source; source code is private and available for review on request._

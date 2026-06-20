@@ -46,4 +46,9 @@ Beta. Actively developed single-author project with a comprehensive pytest suite
 
 ---
 
+
+## Code sample
+
+A small, IP-safe excerpt is in [`clustermind/`](./clustermind/) — numerically-stable Erlang-C queueing math, defensive workload derivation, and a zero-dependency typed dataclass serializer.
+
 _© 2026 Edoardo Caciolo — all rights reserved. Proprietary and not open source; source code is private and available for review on request._

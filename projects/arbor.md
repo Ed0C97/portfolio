@@ -43,4 +43,9 @@ Source code private and proprietary — code review available on request.
 
 ---
 
+
+## Code sample
+
+A small, IP-safe excerpt is in [`arbor/`](./arbor/) — the AI search & recommendation engine behind the platform: hybrid retrieval (dense vector + keyword, RRF fusion), a cost-aware multi-stage reranking funnel with graceful degradation, and learning-to-rank with a zero-dependency fallback.
+
 _© 2026 Edoardo Caciolo — all rights reserved. Proprietary and not open source; source code is private and available for review on request._

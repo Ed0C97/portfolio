@@ -26,7 +26,6 @@
 | [ClusterMind](projects/clustermind.md) | A command-line tool that turns a short description of a web, SaaS, or self-hosted LLM service into a deterministic, auditable infrastructure capacity and cloud-cost plan. |
 | [fast-inference](projects/fast-inference.md) | A self-hosted, OpenAI-compatible inference server for embedding, reranking, and generation models, built to keep retrieval-augmented generation (RAG) workloads fast and fully on-premise. |
 | [Kairo](projects/kairo.md) | A multi-tenant gym-management platform with a Kotlin backend and native iOS and Android apps, covering member access, bookings, subscriptions, locker tracking, and AI-assisted workout coaching. |
-| [LitInvestor Blog](projects/litinvestor-blog.md) | A full-stack publishing platform for a financial-literacy blog that also repurposes published articles into ready-to-post social media image sets. |
 | [Mandrake](projects/mandrake.md) | A multi-agent AI trading platform that keeps a human operator in the loop and enforces hard, non-bypassable risk constraints on every trade. |
 | [Interactive Graphics Projects](projects/marr-interactive-graphics-projects.md) | A set of six browser-based computer graphics assignments implementing core rendering and simulation techniques from scratch in JavaScript and GLSL. |
 | [marr-ml-projects](projects/marr-ml-projects.md) | Two graduate machine learning coursework projects: a tabular multiclass classifier comparison and a CNN-based controller for a simulated racing car. |

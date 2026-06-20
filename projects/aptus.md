@@ -38,4 +38,9 @@ Active, in-development monorepo: substantial backend engines, a Next.js client, 
 
 ---
 
+
+## Code sample
+
+A small, IP-safe excerpt is in [`aptus/`](./aptus/) — Provider-protocol abstractions, injection-safe recursive-CTE graph traversal, and a multi-strategy document pipeline — three self-contained excerpts from a career-intelligence backend.
+
 _© 2026 Edoardo Caciolo — all rights reserved. Proprietary and not open source; source code is private and available for review on request._
