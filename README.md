@@ -27,6 +27,7 @@
 | [fast-inference](projects/fast-inference.md) | A self-hosted, OpenAI-compatible inference server for embedding, reranking, and generation models, built to keep retrieval-augmented generation (RAG) workloads fast and fully on-premise. |
 | [Kairo](projects/kairo.md) | A multi-tenant gym-management platform with a Kotlin backend and native iOS and Android apps, covering member access, bookings, subscriptions, locker tracking, and AI-assisted workout coaching. |
 | [Mandrake](projects/mandrake.md) | A multi-agent AI trading platform that keeps a human operator in the loop and enforces hard, non-bypassable risk constraints on every trade. |
+| [Mercurio](projects/mercurio.md) | An adaptive operations console for small businesses that unifies orders, inventory, calendar, chat, and contacts in one screen whose terminology reshapes itself around each trade. |
 | [Interactive Graphics Projects](projects/marr-interactive-graphics-projects.md) | A set of six browser-based computer graphics assignments implementing core rendering and simulation techniques from scratch in JavaScript and GLSL. |
 | [marr-ml-projects](projects/marr-ml-projects.md) | Two graduate machine learning coursework projects: a tabular multiclass classifier comparison and a CNN-based controller for a simulated racing car. |
 | [MINERVA](projects/minerva.md) | An API-first OSINT engine that aggregates public cyber-threat data into a knowledge graph and answers natural-language questions about the threat landscape. |
