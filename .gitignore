@@ -1,0 +1,3 @@
+
+# Keep the Claude Code memory file local, not tracked.
+.claude/CLAUDE.md
