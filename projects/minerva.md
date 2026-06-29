@@ -39,10 +39,10 @@ MINERVA is a cyber threat intelligence (CTI) platform that collects open-source 
 
 ## Status
 
-Beta, version 1.0.0 — feature-complete multi-agent collection pipeline, full REST API, authentication, database migrations, unit and integration tests, and containerized deployment. Role: sole architect and developer.
+Beta, version 1.0.0, feature-complete multi-agent collection pipeline, full REST API, authentication, database migrations, unit and integration tests, and containerized deployment. Role: sole architect and developer.
 
-Source code private and proprietary — code review available on request.
+Source code private and proprietary, code review available on request.
 
 ---
 
-_© 2026 Edoardo Caciolo — all rights reserved. Proprietary and not open source; source code is private and available for review on request._
+_© 2026 Edoardo Caciolo, all rights reserved. Proprietary and not open source; source code is private and available for review on request._

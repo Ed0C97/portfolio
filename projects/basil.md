@@ -25,13 +25,13 @@ Basil turns a set of words and clues into an intersecting crossword grid, then e
 
 ## Status
 
-Prototype, single-author. Source code private — review available on request.
+Prototype, single-author. Source code private, review available on request.
 
 ---
 
 
 ## Code sample
 
-A small, IP-safe excerpt is in [`basil/`](./basil/) — 2D-grid intersection geometry, defensive placement validation, and clean multi-format CLI input loading in Python.
+A small, IP-safe excerpt is in [`basil/`](./basil/): 2D-grid intersection geometry, defensive placement validation, and clean multi-format CLI input loading in Python.
 
-_© 2026 Edoardo Caciolo — all rights reserved. Proprietary and not open source; source code is private and available for review on request._
+_© 2026 Edoardo Caciolo, all rights reserved. Proprietary and not open source; source code is private and available for review on request._

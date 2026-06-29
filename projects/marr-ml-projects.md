@@ -31,4 +31,4 @@ Academic coursework (completed assignments), not maintained as a product.
 
 ---
 
-_© 2026 Edoardo Caciolo — all rights reserved. Proprietary and not open source; source code is private and available for review on request._
+_© 2026 Edoardo Caciolo, all rights reserved. Proprietary and not open source; source code is private and available for review on request._

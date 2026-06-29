@@ -10,7 +10,7 @@ This project pairs a bachelor's thesis (Electronic Engineering, L-8, Sapienza Un
 
 - Online estimation layer that tracks vehicle state and uncertain physical parameters (friction, cornering stiffness) in real time, so the rest of the stack adapts as grip conditions change.
 - A reinforcement-learning driving policy that produces steering and longitudinal commands, decoupled from the safety layer so the learned behavior can be formally constrained rather than blindly trusted.
-- A formal safety filter based on Control Barrier Functions that keeps every command inside a safe set defined by track boundaries, the tire friction limit, and sideslip limits — turning an unverified policy output into a provably safe command.
+- A formal safety filter based on Control Barrier Functions that keeps every command inside a safe set defined by track boundaries, the tire friction limit, and sideslip limits, turning an unverified policy output into a provably safe command.
 - A model-based supervisory controller and arbitration scheme that can override the learned policy when a safety index indicates risk, giving robust fallback behavior under uncertainty.
 - A physics-grounded vehicle and tire simulation with sensor noise models and domain randomization, enabling robust training and sim-to-real transfer.
 - Perceptual domain adaptation for sim-to-real image transfer, and a real-time control dashboard for monitoring each layer of the stack.
@@ -29,13 +29,13 @@ This project pairs a bachelor's thesis (Electronic Engineering, L-8, Sapienza Un
 
 ## Status
 
-Academic research prototype (thesis project), not production software. Author retains rights to the thesis text; portions of the accompanying code are research-stage. Source code private/proprietary — review available on request.
+Academic research prototype (thesis project), not production software. Author retains rights to the thesis text; portions of the accompanying code are research-stage. Source code private/proprietary, review available on request.
 
 ---
 
 
 ## Code sample
 
-A small, IP-safe excerpt is in [`tesi-triennale/`](./tesi-triennale/) — a single-track vehicle dynamics model with Pacejka tyres + RK4, an Unscented Kalman Filter estimation core (Van der Merwe sigma points + chi-squared consistency monitoring), and exact zero-order-hold LPV discretization via the Van Loan matrix-exponential method.
+A small, IP-safe excerpt is in [`tesi-triennale/`](./tesi-triennale/): a single-track vehicle dynamics model with Pacejka tyres + RK4, an Unscented Kalman Filter estimation core (Van der Merwe sigma points + chi-squared consistency monitoring), and exact zero-order-hold LPV discretization via the Van Loan matrix-exponential method.
 
-_© 2026 Edoardo Caciolo — all rights reserved. Proprietary and not open source; source code is private and available for review on request._
+_© 2026 Edoardo Caciolo, all rights reserved. Proprietary and not open source; source code is private and available for review on request._

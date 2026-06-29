@@ -38,13 +38,13 @@ Kairo is a multi-tenant gym-management system for fitness clubs and their member
 
 Early beta. Active monorepo spanning a Ktor backend, a shared Kotlin Multiplatform core, and two native client apps, with unit test coverage across backend and clients.
 
-Source code private and proprietary — review available on request.
+Source code private and proprietary, review available on request.
 
 ---
 
 
 ## Code sample
 
-A small, IP-safe excerpt is in [`kairo/`](./kairo/) — Kotlin Multiplatform secure-storage abstraction (Keychain + EncryptedSharedPreferences) and a SwiftUI design system
+A small, IP-safe excerpt is in [`kairo/`](./kairo/): Kotlin Multiplatform secure-storage abstraction (Keychain + EncryptedSharedPreferences) and a SwiftUI design system
 
-_© 2026 Edoardo Caciolo — all rights reserved. Proprietary and not open source; source code is private and available for review on request._
+_© 2026 Edoardo Caciolo, all rights reserved. Proprietary and not open source; source code is private and available for review on request._

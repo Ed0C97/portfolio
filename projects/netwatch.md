@@ -38,8 +38,8 @@ NETWATCH watches what every process on a Linux host does at the kernel level and
 
 Beta. Feature-complete across capture, detection, ML, alerting, API, dashboard, and a Docker/Compose deployment, with unit, integration, and validation test suites. Personal project, not a published production release.
 
-Source code private and proprietary — code review available on request.
+Source code private and proprietary, code review available on request.
 
 ---
 
-_© 2026 Edoardo Caciolo — all rights reserved. Proprietary and not open source; source code is private and available for review on request._
+_© 2026 Edoardo Caciolo, all rights reserved. Proprietary and not open source; source code is private and available for review on request._

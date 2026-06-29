@@ -4,11 +4,11 @@
 
 ## Overview
 
-people-os treats AI hiring decisions as a measurable engineering problem rather than ad-hoc prompting. It packages People Operations tasks — querying an applicant tracking system (ATS), parsing resumes, scoring interviews, and generating onboarding plans — as MCP tools and resources that any MCP-compatible client (for example, Claude Desktop or Claude Code) can call. Every AI behavior is governed by versioned prompts and backed by an offline evaluation suite that reports decision-quality metrics, including an explicit fairness measure, so changes can be assessed before they reach users. The full system runs locally in a self-contained demo mode with no API keys required.
+people-os treats AI hiring decisions as a measurable engineering problem rather than ad-hoc prompting. It packages People Operations tasks, querying an applicant tracking system (ATS), parsing resumes, scoring interviews, and generating onboarding plans, as MCP tools and resources that any MCP-compatible client (for example, Claude Desktop or Claude Code) can call. Every AI behavior is governed by versioned prompts and backed by an offline evaluation suite that reports decision-quality metrics, including an explicit fairness measure, so changes can be assessed before they reach users. The full system runs locally in a self-contained demo mode with no API keys required.
 
 ## Highlights
 
-- **MCP-native tooling.** Exposes the hiring workflow — ATS queries, resume parsing, interview scoring, and onboarding plan generation — as a coherent set of MCP tools and resources callable from any compatible client.
+- **MCP-native tooling.** Exposes the hiring workflow, ATS queries, resume parsing, interview scoring, and onboarding plan generation, as a coherent set of MCP tools and resources callable from any compatible client.
 - **Structured, validated AI outputs.** Every AI tool returns a typed, schema-validated result rather than free text, making downstream automation reliable and outputs safe to consume programmatically.
 - **Multi-step agentic workflows.** Graph-based orchestration composes individual tools into screening and onboarding pipelines over typed state, with resilient error handling so a single failure degrades gracefully instead of aborting the run.
 - **Decision-quality evaluation.** An offline eval harness scores AI behavior against a labeled dataset and reports accuracy, precision, recall, and run-to-run consistency, giving a quantitative gate on quality before changes ship.
@@ -21,7 +21,7 @@ people-os treats AI hiring decisions as a measurable engineering problem rather 
 
 | Category | Technology |
 |----------|------------|
-| Language | Python (≥3.10) |
+| Language | Python (3.10 or newer) |
 | LLM | Anthropic Claude API |
 | MCP | FastMCP |
 | Orchestration | LangGraph / LangChain |
@@ -37,13 +37,13 @@ people-os treats AI hiring decisions as a measurable engineering problem rather 
 
 ## Status
 
-Working prototype with an automated test suite and a fully offline demo mode. Source code private and proprietary — review available on request.
+Working prototype with an automated test suite and a fully offline demo mode. Source code private and proprietary, review available on request.
 
 ---
 
 
 ## Code sample
 
-A small, IP-safe excerpt is in [`people-os/`](./people-os/) — MCP server wiring, a typed LangGraph screening pipeline, and a stratified synthetic-data generator — the supporting craft behind an AI-native people-operations toolkit, with prompts and rubrics deliberately left out.
+A small, IP-safe excerpt is in [`people-os/`](./people-os/): the supporting craft behind an AI-native people-operations toolkit, namely MCP server wiring, a typed LangGraph screening pipeline, and a stratified synthetic-data generator, with prompts and rubrics deliberately left out.
 
-_© 2026 Edoardo Caciolo — all rights reserved. Proprietary and not open source; source code is private and available for review on request._
+_© 2026 Edoardo Caciolo, all rights reserved. Proprietary and not open source; source code is private and available for review on request._

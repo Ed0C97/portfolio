@@ -4,7 +4,7 @@
 
 ## Overview
 
-Mandrake is a self-hosted, single-operator system in which specialized AI agents propose trades while a deterministic risk engine and a human operator gate every order before it can reach a broker. It is deliberately scoped to long-only, loss-capped strategies — no short selling, no leverage, no naked options, no perpetual futures — so a position can never lose more than the capital allocated to it. It is built for one operator who wants automated trade research and execution under explicit, auditable controls.
+Mandrake is a self-hosted, single-operator system in which specialized AI agents propose trades while a deterministic risk engine and a human operator gate every order before it can reach a broker. It is deliberately scoped to long-only, loss-capped strategies (no short selling, no leverage, no naked options, no perpetual futures), so a position can never lose more than the capital allocated to it. It is built for one operator who wants automated trade research and execution under explicit, auditable controls.
 
 ## Highlights
 
@@ -44,8 +44,8 @@ Protocol-based seams across audit, LLM routing, brokers, and storage allow in-me
 
 Pre-alpha foundation: the system runs end to end against mock broker and LLM adapters with in-memory storage, paired with an extensive design and research documentation set; production integrations are the next phase. Single-author project.
 
-Source code private/proprietary — review available on request.
+Source code private/proprietary, review available on request.
 
 ---
 
-_© 2026 Edoardo Caciolo — all rights reserved. Proprietary and not open source; source code is private and available for review on request._
+_© 2026 Edoardo Caciolo, all rights reserved. Proprietary and not open source; source code is private and available for review on request._

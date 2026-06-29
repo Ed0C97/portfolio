@@ -32,13 +32,13 @@ Tappo is a native iOS counter and goal tracker. Each project holds a running cou
 
 ## Status
 
-Prototype / version 1.0, single-developer iOS app under active development. Source code private — review available on request.
+Prototype / version 1.0, single-developer iOS app under active development. Source code private, review available on request.
 
 ---
 
 
 ## Code sample
 
-A small, IP-safe excerpt is in [`tappo/`](./tappo/) — typed domain model with a streak algorithm, a coordinate-rendered PDF/CSV/image export pipeline, and a data-driven theme system.
+A small, IP-safe excerpt is in [`tappo/`](./tappo/): typed domain model with a streak algorithm, a coordinate-rendered PDF/CSV/image export pipeline, and a data-driven theme system.
 
-_© 2026 Edoardo Caciolo — all rights reserved. Proprietary and not open source; source code is private and available for review on request._
+_© 2026 Edoardo Caciolo, all rights reserved. Proprietary and not open source; source code is private and available for review on request._

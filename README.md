@@ -1,18 +1,18 @@
-# Edoardo Caciolo — Project Portfolio
+# Edoardo Caciolo: Project Portfolio
 
 > Overview documentation for my projects. **All source code is private and proprietary (not open source).** These pages describe what each system does and how it is built, without the implementation. Code review available on request.
 
-**Contact:** caciolo.edoardo@gmail.com · [github.com/Ed0C97](https://github.com/Ed0C97) · [linkedin.com/in/edoardo-caciolo](https://www.linkedin.com/in/edoardo-caciolo)
+**Contact:** caciolo.edoardo@gmail.com, [github.com/Ed0C97](https://github.com/Ed0C97), [linkedin.com/in/edoardo-caciolo](https://www.linkedin.com/in/edoardo-caciolo)
 
 ## Featured
 
-- **[ARBOR](projects/arbor.md)** — A multi-tenant AI platform that discovers, enriches, and reasons over real-world entities, combining a knowledge graph, vector search, and an event-sourced data store.
-- **[Sentinel](projects/sentinel.md)** — A multi-tenant document intelligence platform that extracts, scores, and attests risk in legal and financial documents, producing auditable findings instead of free-form summaries.
-- **[Tay](projects/tay.md)** — A native Apple-platform app that recognizes physical artworks and monuments through the camera and anchors real-time augmented-reality experiences on top of them.
-- **[Aptus](projects/aptus.md)** — A career-intelligence platform that aligns a candidate's CV with a job description and returns a scored, evidence-backed match that both recruiters and candidates can audit.
-- **[Kairo](projects/kairo.md)** — A multi-tenant gym-management platform with a Kotlin backend and native iOS and Android apps, covering member access, bookings, subscriptions, locker tracking, and AI-assisted workout coaching.
-- **[people-os](projects/people-os.md)** — An AI-assisted hiring platform that exposes resume screening, interview scoring, and onboarding as Model Context Protocol (MCP) tools, paired with an evaluation framework that measures decision quality before changes ship.
-- **[fast-inference](projects/fast-inference.md)** — A self-hosted, OpenAI-compatible inference server for embedding, reranking, and generation models, built to keep retrieval-augmented generation (RAG) workloads fast and fully on-premise.
+- **[ARBOR](projects/arbor.md)**: A multi-tenant AI platform that discovers, enriches, and reasons over real-world entities, combining a knowledge graph, vector search, and an event-sourced data store.
+- **[Sentinel](projects/sentinel.md)**: A multi-tenant document intelligence platform that extracts, scores, and attests risk in legal and financial documents, producing auditable findings instead of free-form summaries.
+- **[Tay](projects/tay.md)**: A native Apple-platform app that recognizes physical artworks and monuments through the camera and anchors real-time augmented-reality experiences on top of them.
+- **[Aptus](projects/aptus.md)**: A career-intelligence platform that aligns a candidate's CV with a job description and returns a scored, evidence-backed match that both recruiters and candidates can audit.
+- **[Kairo](projects/kairo.md)**: A multi-tenant gym-management platform with a Kotlin backend and native iOS and Android apps, covering member access, bookings, subscriptions, locker tracking, and AI-assisted workout coaching.
+- **[people-os](projects/people-os.md)**: An AI-assisted hiring platform that exposes resume screening, interview scoring, and onboarding as Model Context Protocol (MCP) tools, paired with an evaluation framework that measures decision quality before changes ship.
+- **[fast-inference](projects/fast-inference.md)**: A self-hosted, OpenAI-compatible inference server for embedding, reranking, and generation models, built to keep retrieval-augmented generation (RAG) workloads fast and fully on-premise.
 
 ## All projects
 
@@ -43,4 +43,4 @@
 
 ---
 
-_© 2026 Edoardo Caciolo — all rights reserved. Proprietary and not open source; source code is private and available for review on request._
+_© 2026 Edoardo Caciolo, all rights reserved. Proprietary and not open source; source code is private and available for review on request._

@@ -8,15 +8,15 @@ Aptus reads a CV and a job description, extracts structured candidate and role d
 
 ## Highlights
 
-- **Evidence-grounded results** — every requirement-to-claim match is backed by citations from both the CV and the job description and carries a confidence signal, so a recruiter or candidate can audit exactly why a verdict was reached instead of trusting a black box.
-- **Hybrid match engine** — combines a deterministic rule layer with selective LLM reasoning so that clear-cut cases are resolved cheaply and reproducibly while genuinely ambiguous requirements get model-level judgment, keeping results consistent and cost-bounded at scale.
-- **Explainable scoring** — surfaces an overall fit score, a category-level breakdown, an explicit gap list, and ATS keyword coverage, turning a single number into an actionable, defensible assessment.
-- **Live, incremental results** — the analysis streams to the web client so parsing, extraction, matching, and narrative framing render progressively rather than after a long blocking wait.
-- **Broad candidate-intelligence suite** — beyond matching, the platform offers CV rewriting and optimization, narrative framing, multi-persona recruiter simulation, skill-transferability and role-clustering inference, market indexing, interview-question generation, and connectors to common ATS systems and identity sources.
-- **Multi-format document ingestion** — robustly parses real-world PDF and DOCX resumes, including scanned documents, with language and section detection.
-- **Compliance and privacy by design** — built-in EU AI Act risk-management, transparency, human-oversight, and record-keeping surfaces; Data Protection Impact Assessment tooling; and GDPR erasure, export, and rectification capabilities, with strict multi-tenant data isolation enforced at the database layer.
-- **Pluggable provider model** — authentication, billing, database, embeddings, graph store, LLM routing, OCR, and reranking each sit behind a clean interface with interchangeable adapters, so the same code runs fully self-hosted or on managed cloud services.
-- **Operational hardening** — multi-factor authentication, CSRF protection, security headers, rate limiting, usage metering, and end-to-end observability and evaluation gating.
+- **Evidence-grounded results**: every requirement-to-claim match is backed by citations from both the CV and the job description and carries a confidence signal, so a recruiter or candidate can audit exactly why a verdict was reached instead of trusting a black box.
+- **Hybrid match engine**: combines a deterministic rule layer with selective LLM reasoning so that clear-cut cases are resolved cheaply and reproducibly while genuinely ambiguous requirements get model-level judgment, keeping results consistent and cost-bounded at scale.
+- **Explainable scoring**: surfaces an overall fit score, a category-level breakdown, an explicit gap list, and ATS keyword coverage, turning a single number into an actionable, defensible assessment.
+- **Live, incremental results**: the analysis streams to the web client so parsing, extraction, matching, and narrative framing render progressively rather than after a long blocking wait.
+- **Broad candidate-intelligence suite**: beyond matching, the platform offers CV rewriting and optimization, narrative framing, multi-persona recruiter simulation, skill-transferability and role-clustering inference, market indexing, interview-question generation, and connectors to common ATS systems and identity sources.
+- **Multi-format document ingestion**: robustly parses real-world PDF and DOCX resumes, including scanned documents, with language and section detection.
+- **Compliance and privacy by design**: built-in EU AI Act risk-management, transparency, human-oversight, and record-keeping surfaces; Data Protection Impact Assessment tooling; and GDPR erasure, export, and rectification capabilities, with strict multi-tenant data isolation enforced at the database layer.
+- **Pluggable provider model**: authentication, billing, database, embeddings, graph store, LLM routing, OCR, and reranking each sit behind a clean interface with interchangeable adapters, so the same code runs fully self-hosted or on managed cloud services.
+- **Operational hardening**: multi-factor authentication, CSRF protection, security headers, rate limiting, usage metering, and end-to-end observability and evaluation gating.
 
 ## Tech Stack
 
@@ -34,13 +34,13 @@ Aptus reads a CV and a job description, extracts structured candidate and role d
 
 ## Status
 
-Active, in-development monorepo: substantial backend engines, a Next.js client, CI workflows, and an evolving database schema, with some operational paths deferred to later phases. Source code is private and proprietary (all rights reserved) — code review available on request.
+Active, in-development monorepo: substantial backend engines, a Next.js client, CI workflows, and an evolving database schema, with some operational paths deferred to later phases. Source code is private and proprietary (all rights reserved), code review available on request.
 
 ---
 
 
 ## Code sample
 
-A small, IP-safe excerpt is in [`aptus/`](./aptus/) — Provider-protocol abstractions, injection-safe recursive-CTE graph traversal, and a multi-strategy document pipeline — three self-contained excerpts from a career-intelligence backend.
+A small, IP-safe excerpt is in [`aptus/`](./aptus/): three self-contained excerpts from a career-intelligence backend, covering provider-protocol abstractions, injection-safe recursive-CTE graph traversal, and a multi-strategy document pipeline.
 
-_© 2026 Edoardo Caciolo — all rights reserved. Proprietary and not open source; source code is private and available for review on request._
+_© 2026 Edoardo Caciolo, all rights reserved. Proprietary and not open source; source code is private and available for review on request._
