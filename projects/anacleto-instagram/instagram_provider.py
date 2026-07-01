@@ -92,7 +92,8 @@ class InstagramProvider:
         params = dict(params or {})
         params["access_token"] = self.access_token
 
-        for attempt in range(self._retry_attempts if retry else 1):
+        attempts = self._retry_attempts if retry else 1
+        for attempt in range(attempts):
             try:
                 if method.upper() == "GET":
                     response = requests.get(url, params=params, timeout=self._timeout)
@@ -107,9 +108,9 @@ class InstagramProvider:
             except requests.exceptions.RequestException as e:
                 logger.warning(
                     "Request failed (attempt %d/%d): %s",
-                    attempt + 1, self._retry_attempts, e,
+                    attempt + 1, attempts, e,
                 )
-                if attempt < self._retry_attempts - 1:
+                if attempt < attempts - 1:
                     time.sleep(self._retry_delay)
                 else:
                     raise

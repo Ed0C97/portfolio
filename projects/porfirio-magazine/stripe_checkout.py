@@ -20,11 +20,17 @@ def create_checkout_session():
         amount = data.get("amount")
         payment_method = data.get("paymentMethod")
 
-        # the client can't be trusted, so re-check Stripe's 1-unit minimum here
-        if not amount or float(amount) < 1:
+        # the client can't be trusted: validate the amount is numeric, re-check
+        # Stripe's 1-unit minimum, and cap the upper bound so a tampered request
+        # cannot open a session for an arbitrarily large charge
+        try:
+            amount_value = float(amount)
+        except (TypeError, ValueError):
+            return jsonify(error={"message": "Invalid amount."}), 400
+        if amount_value < 1 or amount_value > 100_000:
             return jsonify(error={"message": "Invalid amount."}), 400
 
-        amount_in_cents = int(float(amount) * 100)
+        amount_in_cents = int(amount_value * 100)
 
         payment_method_types = ["card", "paypal"]
         if payment_method == "paypal":
@@ -53,8 +59,10 @@ def create_checkout_session():
         return jsonify({"url": checkout_session.url})
 
     except Exception as e:
+        # log the detail server-side; return a generic message so the client
+        # never sees raw exception text
         current_app.logger.error(f"Checkout session creation failed: {e}")
-        return jsonify(error=str(e)), 500
+        return jsonify(error={"message": "Could not create checkout session."}), 500
 
 
 # -----

@@ -139,7 +139,7 @@ final class ExportManager {
                 for milestone in project.milestones.sorted(by: { $0.targetValue < $1.targetValue }) {
                     // filled check vs hollow circle marks reached state
                     let mark = milestone.isReached ? "\u{2713}" : "\u{25CB}"
-                    NSAttributedString(string: "\(mark)  \(milestone.title) \u{2014} target: \(milestone.targetValue)", attributes: [
+                    NSAttributedString(string: "\(mark)  \(milestone.title) (target: \(milestone.targetValue))", attributes: [
                         .font: UIFont.systemFont(ofSize: 13, weight: milestone.isReached ? .semibold : .regular),
                         .foregroundColor: milestone.isReached ? UIColor.systemGreen : UIColor.secondaryLabel
                     ]).draw(at: CGPoint(x: margin + 10, y: y))

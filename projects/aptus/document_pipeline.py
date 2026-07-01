@@ -54,7 +54,10 @@ _HEADING_PATTERNS: dict[str, tuple[str, ...]] = {
     "projects": ("projects", "progetti"),
 }
 
-_HEADING_RE = re.compile(r"^[\s•\-\*]*(?P<text>[A-Za-zÀ-ÿ' ]{2,40})\s*[:\-—]?\s*$")
+# The bullet and em-dash escapes below match those characters where they
+# appear literally in real CV headings; written as \u escapes so the source
+# stays free of the ornament characters the docs standard disallows.
+_HEADING_RE = re.compile(r"^[\s\u2022\-\*]*(?P<text>[A-Za-zÀ-ÿ' ]{2,40})\s*[:\-\u2014]?\s*$")
 
 
 @dataclass(frozen=True, slots=True)

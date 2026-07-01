@@ -1,3 +1,7 @@
 
 # Keep the Claude Code memory file local, not tracked.
 .claude/CLAUDE.md
+
+# Python build artifacts
+__pycache__/
+*.py[cod]

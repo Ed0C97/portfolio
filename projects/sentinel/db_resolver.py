@@ -74,7 +74,7 @@ async def resolve_tenant_db_url(tenant_id: str) -> str:
     if not secret_id:
         raise TenantDBNotConfigured(
             f"tenant {tenant_id!r} is in deploy_mode={mode!r} but has no "
-            "db_url_secret_id — set the secret and update the tenants row "
+            "db_url_secret_id: set the secret and update the tenants row "
             "before running migrations against it."
         )
 
@@ -111,5 +111,5 @@ async def iter_dedicated_tenants() -> list[tuple[str, str]]:
             url = await resolve_tenant_db_url(tid)
             out.append((tid, url))
         except TenantDBNotConfigured as exc:
-            logger.warning("[migrations] skipping tenant %s — %s", tid, exc)
+            logger.warning("[migrations] skipping tenant %s: %s", tid, exc)
     return out
