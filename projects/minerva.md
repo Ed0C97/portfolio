@@ -2,8 +2,6 @@
 
 > An API-first OSINT engine that aggregates public cyber-threat data into a knowledge graph and answers natural-language questions about the threat landscape.
 
-Described at the design and capability level; no code sample is published for this project. A code review can be arranged on request.
-
 ## Overview
 
 MINERVA is a cyber threat intelligence (CTI) service. It collects open-source intelligence on IP addresses, domains, vulnerabilities, and threat actors from multiple public sources, resolves those signals into a single correlated knowledge graph, and lets analysts query the result in plain language. It is built as a REST backend so other systems can consume it rather than use it as a standalone tool. Findings are aligned to MITRE ATT&CK and can be exported as STIX 2.1.
@@ -19,8 +17,12 @@ Python and FastAPI backend; Neo4j for the knowledge graph; PostgreSQL and Redis 
 
 ## Status
 
-Private project, sole architect and developer. Described here without a code sample; a sample or code review can be provided on request.
+Private project, sole architect and developer. Source code private and proprietary; a full code review can be provided on request.
 
 ---
+
+## Code sample
+
+A small, IP-safe excerpt is in [`minerva/`](./minerva/): cross-source entity resolution into canonical graph nodes (deterministic conflict resolution with provenance), and a static read-only safety guard that makes LLM-generated Cypher structurally incapable of mutating or exhausting the graph. The curated threat-actor alias table, per-source weighting, and Neo4j backend are stubbed.
 
 _© 2026 Edoardo Caciolo, all rights reserved. Proprietary and not open source; source code is private and available for review on request._

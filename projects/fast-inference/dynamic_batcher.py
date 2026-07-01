@@ -17,11 +17,14 @@ logger = logging.getLogger(__name__)
 
 @dataclass
 class BatchRequest:
-    """One queued request and the future its caller is awaiting."""
+    """One queued request and the future its caller is awaiting.
+
+    The future is created in submit() on the running loop, not here: a future must
+    belong to the loop that awaits it, and asyncio.get_event_loop() with no running
+    loop is deprecated and would bind to the wrong loop.
+    """
     data: dict  # payload shape varies by endpoint
-    future: asyncio.Future = field(
-        default_factory=lambda: asyncio.get_event_loop().create_future()
-    )
+    future: asyncio.Future = field(init=False)
     enqueue_time: float = field(default_factory=time.perf_counter)
 
 
@@ -92,6 +95,9 @@ class DynamicBatcher:
     async def submit(self, data: dict) -> object:
         """Queue a request and await its batched result."""
         request = BatchRequest(data=data)
+        # Bind the future to the loop actually awaiting it (the one running submit),
+        # so _process_batch can resolve it from the dispatcher task on the same loop.
+        request.future = asyncio.get_running_loop().create_future()
         await self._queue.put(request)
         return await request.future
 

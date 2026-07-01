@@ -21,6 +21,7 @@ The published excerpts are chosen to show concrete engineering, each tied to the
 - **Cross-platform mobile**: Kotlin Multiplatform with native secure storage through CoreFoundation interop on iOS and the Android Keystore ([Kairo](projects/kairo.md)).
 - **Resilience and operability**: circuit breakers on a monotonic clock, multi-backend secret resolution, and graceful-degradation fallbacks ([Sentinel](projects/sentinel.md), [fast-inference](projects/fast-inference.md)).
 - **Security-conscious design**: SSRF and DNS-rebinding defense on a local gateway, injection-safe SQL over a recursive CTE, and fail-closed field encryption ([BOT Garage](projects/bot-garage.md), [Aptus](projects/aptus.md)).
+- **Threat detection and intelligence**: coefficient-of-variation C2 beaconing detection and channel-isolated SIEM alerting ([NETWATCH](projects/netwatch.md)); cross-source entity resolution into a knowledge graph and read-only-by-construction query safety ([MINERVA](projects/minerva.md)).
 
 ## Featured
 
@@ -43,19 +44,14 @@ The published excerpts are chosen to show concrete engineering, each tied to the
 | [ClusterMind](projects/clustermind.md) | A command-line tool that turns a short description of a web, SaaS, or self-hosted LLM service into a deterministic, auditable infrastructure capacity and cloud-cost plan. |
 | [fast-inference](projects/fast-inference.md) | A self-hosted, OpenAI-compatible inference server for embedding, reranking, and generation models, built to keep retrieval-augmented generation (RAG) workloads fast and fully on-premise. |
 | [Kairo](projects/kairo.md) | A multi-tenant gym-management platform with a Kotlin backend and native iOS and Android apps, covering member access, bookings, subscriptions, locker tracking, and AI-assisted workout coaching. |
+| [MINERVA](projects/minerva.md) | An API-first OSINT engine that aggregates public cyber-threat data into a knowledge graph and answers natural-language questions about the threat landscape. |
+| [NETWATCH](projects/netwatch.md) | A Linux endpoint security monitor that observes process, network, and file activity at the kernel level with eBPF, scores it against rules and machine-learning models, and dispatches alerts to a dashboard and SIEM systems. |
 | [people-os](projects/people-os.md) | An AI-assisted hiring platform that exposes resume screening, interview scoring, and onboarding as Model Context Protocol (MCP) tools, paired with an evaluation framework that measures decision quality before changes ship. |
 | [Porfirio Magazine](projects/porfirio-magazine.md) | A full-stack digital magazine platform that unifies bilingual publishing, payments, engagement analytics, and automated social-media content generation in a single product. |
 | [Sentinel](projects/sentinel.md) | A multi-tenant document intelligence platform that extracts, scores, and attests risk in legal and financial documents, producing auditable findings instead of free-form summaries. |
 | [Tappo](projects/tappo.md) | A native iOS app for tracking counts, habits, and goal progress across multiple projects, with Home Screen widgets and Lock Screen Live Activities that stay in sync with the app. |
 | [Tay](projects/tay.md) | A native Apple-platform app that recognizes physical artworks and monuments through the camera and anchors real-time augmented-reality experiences on top of them. |
 | [Hybrid Multi-Layer Control for Robust Autonomous Driving](projects/tesi-triennale.md) | A bachelor's thesis and simulation framework for a layered learning-plus-model-based control stack that keeps a Formula Student driverless race car safe and accurate when tire grip and vehicle parameters are uncertain. |
-
-## Additional projects (described, no code sample shown)
-
-| Project | What it is |
-| --- | --- |
-| [MINERVA](projects/minerva.md) | An API-first OSINT engine that aggregates public cyber-threat data into a knowledge graph and answers natural-language questions about the threat landscape. |
-| [NETWATCH](projects/netwatch.md) | A Linux endpoint security monitor that observes process, network, and file activity at the kernel level with eBPF, scores it against rules and machine-learning models, and dispatches alerts to a dashboard and SIEM systems. |
 
 ## Academic coursework
 

@@ -41,6 +41,6 @@ Single-author engineering project, structured and documented like a production s
 
 ## Code sample
 
-A small, IP-safe excerpt is in [`fast-inference/`](./fast-inference/): a dynamic request batcher, a pre-allocated GPU tensor pool, and a circuit-breaker health checker.
+A small, IP-safe excerpt is in [`fast-inference/`](./fast-inference/): symmetric INT8 quantization with per-tensor and per-channel scales and a precision-protection policy that keeps sensitive layers in full precision, plus the serving-layer utilities: a dynamic request batcher, a pre-allocated GPU tensor pool, and a circuit-breaker health checker.
 
 _© 2026 Edoardo Caciolo, all rights reserved. Proprietary and not open source; source code is private and available for review on request._
