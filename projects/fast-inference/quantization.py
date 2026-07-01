@@ -1,241 +1,316 @@
-"""Symmetric INT8 quantization with a precision-protection policy. Portfolio excerpt, adapted.
+"""INT8 static quantization for transformer inference. Portfolio excerpt, adapted.
 
-Post-training weight quantization to signed INT8. Two scale granularities are shown:
-per-tensor (one scale for the whole weight) and per-channel (one scale per output
-row), which is the usual choice for linear layers because per-row dynamic range
-varies enough that a single scale wastes resolution.
+Shows the shape of a post-training static-quantization pipeline for ONNX
+transformer models: a calibration data reader, an op skip-list that keeps
+precision-sensitive layers in floating point, per-channel weight quantization
+with per-tensor static activation ranges baked in from calibration, and a
+validation pass that compares FP32 vs INT8 embeddings by cosine similarity.
 
-The interesting part is not the arithmetic, it is knowing where NOT to apply it.
-Some tensors (normalization gains/biases, embedding tables, the final projection into
-logits) are numerically sensitive: quantizing them costs far more quality than the
-memory they save. A policy decides, by name and shape, which tensors pass through in
-full precision. The real calibration ranges, the per-layer sensitivity thresholds, and
-the fused INT8 GEMM kernels are proprietary and omitted here; this module is the
-correctness-critical scaffolding around them.
+The ONNX Runtime quantization backend, the real export step, the curated
+calibration corpus (a sample of production traffic), the tuned acceptance
+thresholds, and the exact model names are stubbed. The static-activation
+calibration statistics are the proprietary half and are represented here by a
+small illustrative range collector rather than the production implementation.
 """
 
 from __future__ import annotations
 
-import re
+import logging
+from collections.abc import Iterator
 from dataclasses import dataclass, field
+from pathlib import Path
 
 import numpy as np
 
-# Signed 8-bit symmetric range is [-127, 127], deliberately not [-128, 127].
-# Dropping -128 keeps the quantization grid symmetric about zero, so quantize and
-# dequantize are exact inverses of scaling and 0.0 always maps to integer 0. This
-# is the standard convention for symmetric weight quantization (TensorRT, PyTorch).
-INT8_QMAX = 127
+logger = logging.getLogger(__name__)
 
-# Absmax below this is treated as an all-zero (or denormal) tensor. The scale would
-# otherwise be zero and the reciprocal would blow up; we substitute a positive absmax
-# so the tensor round-trips to all zeros instead of NaN.
-_ABSMAX_EPS = 1e-12
+# Precision-sensitive ops kept in floating point. Quantizing these tends to cost
+# more accuracy than the memory it saves: layer norm and softmax are numerically
+# delicate, and embedding lookups (Gather) index a table where INT8 rounding
+# shows up directly in the output. MatMul and Attention, which dominate compute
+# and memory, are what we actually want in INT8.
+OPS_TO_SKIP: frozenset[str] = frozenset(
+    {"LayerNormalization", "Softmax", "Gelu", "Gather"}
+)
+
+# Placeholder calibration corpus. The real reader draws from a sample of the
+# production query distribution; representativeness is what makes static ranges
+# match deployment. These generic strings only exercise the code path.
+DEFAULT_CALIBRATION_TEXTS: tuple[str, ...] = (
+    "Machine learning is a subset of artificial intelligence.",
+    "The quick brown fox jumps over the lazy dog.",
+    "what is attention",
+    "GPU memory bandwidth",
+)
 
 
-@dataclass(frozen=True)
-class QuantizedTensor:
-    """An INT8 tensor plus the scales needed to reconstruct it.
+class CalibrationDataReader:
+    """Feeds calibration batches to the quantizer.
 
-    axis is None for per-tensor quantization (scale is a scalar), or the axis along
-    which each slice has its own scale for per-channel (scale is 1-D). Keeping the
-    axis with the payload means dequantize does not have to guess the layout.
+    Static quantization needs the typical range of activations at each layer
+    before deployment. We get that by running representative text through the
+    FP32 model once and recording min/max per tensor. This reader implements the
+    get_next / rewind interface the ONNX Runtime quantizer consumes: one batch of
+    tokenized numpy arrays per call, None when exhausted.
     """
 
-    values: np.ndarray  # dtype int8
-    scale: np.ndarray  # float32, scalar or 1-D
-    axis: int | None
+    def __init__(
+        self,
+        tokenizer_name: str,
+        texts: list[str] | None = None,
+        max_length: int = 512,
+        batch_size: int = 1,
+    ) -> None:
+        # Real code loads a HuggingFace tokenizer here; stubbed to keep the
+        # excerpt dependency-free. _tokenize below stands in for it.
+        self.tokenizer_name = tokenizer_name
+        self.texts = list(texts) if texts is not None else list(DEFAULT_CALIBRATION_TEXTS)
+        self.max_length = max_length
+        self.batch_size = batch_size
+        self._index = 0
 
+        # Pre-tokenize up front so get_next stays cheap during calibration.
+        self._batches = self._prepare_batches()
+        logger.info(
+            "Calibration: %d texts to %d batches (batch_size=%d)",
+            len(self.texts),
+            len(self._batches),
+            batch_size,
+        )
 
-def _absmax_scale(absmax: np.ndarray) -> np.ndarray:
-    """Map an absolute-maximum magnitude to a float32 scale, guarding zeros.
+    def _tokenize(self, batch_texts: list[str]) -> dict[str, np.ndarray]:
+        """Stub tokenizer: deterministic fixed-length int64 ids and mask.
 
-    scale = absmax / 127, so a value at the extreme maps to +-127. Where absmax is
-    effectively zero we substitute an absmax of 1.0 (giving a scale of 1/127) to avoid
-    a divide-by-zero in quantize; the slice is all zeros anyway, so any positive scale
-    reconstructs it exactly.
-    """
-    safe = np.where(absmax < _ABSMAX_EPS, 1.0, absmax)
-    return (safe / INT8_QMAX).astype(np.float32)
+        The production path calls a real subword tokenizer with padding and
+        truncation to max_length. We only need arrays of the right dtype and
+        shape for the quantizer, so a hash-based fill is enough.
+        """
+        n = len(batch_texts)
+        ids = np.zeros((n, self.max_length), dtype=np.int64)
+        mask = np.zeros((n, self.max_length), dtype=np.int64)
+        for row, text in enumerate(batch_texts):
+            length = min(len(text.split()), self.max_length)
+            for col in range(length):
+                ids[row, col] = (hash((text, col)) % 30000) + 1
+            mask[row, :length] = 1
+        return {"input_ids": ids, "attention_mask": mask}
 
+    def _prepare_batches(self) -> list[dict[str, np.ndarray]]:
+        """Tokenize and group all calibration texts into batches."""
+        batches: list[dict[str, np.ndarray]] = []
+        for start in range(0, len(self.texts), self.batch_size):
+            batch_texts = self.texts[start : start + self.batch_size]
+            batches.append(self._tokenize(batch_texts))
+        return batches
 
-def compute_scale_per_tensor(weight: np.ndarray) -> np.ndarray:
-    """One scale for the whole tensor, from its global absolute maximum."""
-    absmax = np.max(np.abs(weight)).astype(np.float32)
-    return _absmax_scale(np.asarray(absmax))
+    def get_next(self) -> dict[str, np.ndarray] | None:
+        """Return the next calibration batch, or None once exhausted."""
+        if self._index >= len(self._batches):
+            return None
+        batch = self._batches[self._index]
+        self._index += 1
+        return batch
 
+    def rewind(self) -> None:
+        """Reset to the start so the quantizer can make multiple passes."""
+        self._index = 0
 
-def compute_scale_per_channel(weight: np.ndarray, axis: int = 0) -> np.ndarray:
-    """One scale per slice along axis, from each slice's absolute maximum.
+    def __iter__(self) -> Iterator[dict[str, np.ndarray]]:
+        self.rewind()
+        return self
 
-    For a Linear weight of shape (out_features, in_features), axis=0 gives a scale
-    per output channel. Reducing over every axis except axis keeps the result
-    broadcastable against the original tensor.
-    """
-    # Normalize a negative axis before comparing, otherwise axis=-1 matches nothing in
-    # range(ndim) and the reduction collapses over every axis into a scalar.
-    axis = axis % weight.ndim
-    reduce_axes = tuple(a for a in range(weight.ndim) if a != axis)
-    absmax = np.max(np.abs(weight), axis=reduce_axes)
-    return _absmax_scale(absmax)
-
-
-def _reshape_scale_for_axis(scale: np.ndarray, ndim: int, axis: int) -> np.ndarray:
-    """Reshape a 1-D per-channel scale so it broadcasts along axis."""
-    axis = axis % ndim
-    shape = [1] * ndim
-    shape[axis] = scale.shape[0]
-    return scale.reshape(shape)
-
-
-def quantize(
-    weight: np.ndarray,
-    scale: np.ndarray,
-    axis: int | None,
-) -> np.ndarray:
-    """Quantize to int8: round-to-nearest, then clamp to [-127, 127].
-
-    The clamp matters even though scale is derived from absmax: floating-point error
-    in the division can push the extreme value to 127.0000001, and rounding that
-    without clamping overflows int8. np.rint uses banker's rounding (round-half-to-even),
-    which is the same tie rule most INT8 kernels assume.
-    """
-    if axis is not None:
-        scale = _reshape_scale_for_axis(scale, weight.ndim, axis)
-    q = np.rint(weight / scale)
-    q = np.clip(q, -INT8_QMAX, INT8_QMAX)
-    return q.astype(np.int8)
-
-
-def dequantize(values: np.ndarray, scale: np.ndarray, axis: int | None) -> np.ndarray:
-    """Reconstruct float32 from int8 by multiplying back through the scale."""
-    scale = np.asarray(scale, dtype=np.float32)
-    if axis is not None:
-        scale = _reshape_scale_for_axis(scale, values.ndim, axis)
-    return values.astype(np.float32) * scale
-
-
-def quantize_tensor(
-    weight: np.ndarray,
-    per_channel: bool = True,
-    axis: int = 0,
-) -> QuantizedTensor:
-    """Compute scales and quantize in one step. Per-channel by default for weights."""
-    weight = np.asarray(weight, dtype=np.float32)
-    if per_channel:
-        scale = compute_scale_per_channel(weight, axis=axis)
-        return QuantizedTensor(quantize(weight, scale, axis), scale, axis)
-    scale = compute_scale_per_tensor(weight)
-    return QuantizedTensor(quantize(weight, scale, None), scale, None)
-
-
-@dataclass(frozen=True)
-class QuantError:
-    """Round-trip error between an original tensor and its dequantized form."""
-
-    max_abs_error: float  # worst-case elementwise deviation
-    mean_abs_error: float
-    relative_error: float  # ||q - w|| / ||w||, the signal-to-quantization-noise proxy
-
-
-def quantization_error(original: np.ndarray, reconstructed: np.ndarray) -> QuantError:
-    """Measure how much information the round-trip lost.
-
-    Relative error is the Frobenius norm of the residual over the norm of the input,
-    which is scale-invariant and comparable across layers of different magnitude. A
-    fully-zero input gives 0.0 relative error rather than a NaN.
-    """
-    original = np.asarray(original, dtype=np.float32)
-    diff = np.abs(original - reconstructed)
-    denom = np.linalg.norm(original)
-    relative = float(np.linalg.norm(diff) / denom) if denom > _ABSMAX_EPS else 0.0
-    return QuantError(
-        max_abs_error=float(np.max(diff)) if diff.size else 0.0,
-        mean_abs_error=float(np.mean(diff)) if diff.size else 0.0,
-        relative_error=relative,
-    )
+    def __next__(self) -> dict[str, np.ndarray]:
+        result = self.get_next()
+        if result is None:
+            raise StopIteration
+        return result
 
 
 @dataclass
-class QuantPolicy:
-    """Decides which tensors stay in full precision.
+class ActivationRange:
+    """Per-tensor min/max accumulated across calibration batches.
 
-    Two independent skip rules, because sensitivity shows up in two ways. Name patterns
-    catch tensors known a priori to be sensitive (layer norms, embeddings, the LM head).
-    A minimum element count skips tensors too small for INT8 to pay off: the per-channel
-    scale metadata and the dequantize overhead can exceed the memory saved. Real
-    deployments also skip on measured per-layer error above a tuned threshold; that
-    calibration data is proprietary and not included here.
+    This is the static half of static quantization: the range is fixed here,
+    at calibration time, so there is zero per-request range computation at
+    serving time (the reason we prefer static over dynamic for a serving
+    workload with a predictable input distribution). The production collector,
+    with its moving-average smoothing and outlier handling, is stubbed; this
+    keeps a plain running min/max to show the structure.
     """
 
-    # Substrings matched case-insensitively against the tensor name. These names are
-    # illustrative of the usual suspects, not tuned to any specific model. Substring
-    # matching is coarse: "bias" also skips a 2-D weight whose name merely contains it
-    # (a fused "...attn_bias_proj.weight"), which a real deployment tightens with
-    # word-boundary or exact-suffix rules.
-    skip_name_patterns: list[str] = field(
-        default_factory=lambda: ["norm", "ln_", "embed", "lm_head", "bias"]
+    lo: float = float("inf")
+    hi: float = float("-inf")
+
+    def observe(self, tensor: np.ndarray) -> None:
+        self.lo = min(self.lo, float(tensor.min()))
+        self.hi = max(self.hi, float(tensor.max()))
+
+    def symmetric_scale(self, qmax: int = 127) -> float:
+        """Symmetric INT8 scale for this range (zero-point fixed at 0)."""
+        amax = max(abs(self.lo), abs(self.hi))
+        # Guard the all-zero tensor: a zero range would divide by zero.
+        return (amax / qmax) if amax > 0.0 else 1.0
+
+
+@dataclass
+class QuantConfig:
+    """Knobs for the quantization run. Real defaults are tuned per model."""
+
+    per_channel: bool = True  # per-channel weights, standard best practice
+    weight_symmetric: bool = True
+    activation_symmetric: bool = False
+    ops_to_skip: frozenset[str] = OPS_TO_SKIP
+    # Acceptance threshold on mean cosine similarity. The production value is
+    # tuned per model family; this placeholder is deliberately loose.
+    cosine_threshold: float = 0.99
+    excluded_nodes: list[str] = field(default_factory=list)
+
+
+def collect_activation_ranges(
+    reader: CalibrationDataReader,
+    forward_fp32,
+) -> dict[str, ActivationRange]:
+    """Run calibration data through the FP32 model and record activation ranges.
+
+    forward_fp32 is injected (the real export/session wiring is stubbed): given a
+    batch, it returns a mapping of tensor name to activation array. We fold each
+    batch into a running range per tensor. These ranges are what get baked into
+    the INT8 model so no range is computed at request time.
+    """
+    ranges: dict[str, ActivationRange] = {}
+    reader.rewind()
+    for batch in reader:
+        for name, activation in forward_fp32(batch).items():
+            ranges.setdefault(name, ActivationRange()).observe(activation)
+    logger.info("Collected activation ranges for %d tensors", len(ranges))
+    return ranges
+
+
+def select_nodes_to_exclude(op_types: list[str], config: QuantConfig) -> list[str]:
+    """Return indices of graph nodes to leave in floating point.
+
+    In the real pipeline this walks an ONNX graph and matches node.op_type
+    against the skip-list; here op_types is a plain list so the excerpt runs
+    without an ONNX dependency. Same decision, smaller surface.
+    """
+    excluded = [
+        f"node_{i}"
+        for i, op in enumerate(op_types)
+        if op in config.ops_to_skip
+    ]
+    logger.info(
+        "Quantizing: %d ops total, %d excluded (precision-sensitive)",
+        len(op_types),
+        len(excluded),
     )
-    min_elements: int = 4096
-
-    def __post_init__(self) -> None:
-        joined = "|".join(re.escape(p) for p in self.skip_name_patterns)
-        self._name_re = re.compile(joined, re.IGNORECASE) if joined else None
-
-    def should_skip(self, name: str, shape: tuple[int, ...]) -> bool:
-        """True if this tensor must be kept in higher precision."""
-        if self._name_re is not None and self._name_re.search(name):
-            return True
-        return int(np.prod(shape)) < self.min_elements
-
-    def sensitivity_score(self, name: str, weight: np.ndarray) -> float:
-        """Per-tensor sensitivity used to gate quantization by measured error.
-
-        The real scorer combines calibration statistics, activation ranges, and a
-        tuned threshold. Omitted from the portfolio excerpt.
-        """
-        raise NotImplementedError(
-            "sensitivity scoring omitted from portfolio excerpt"
-        )
+    return excluded
 
 
-def quantize_state_dict(
-    weights: dict[str, np.ndarray],
-    policy: QuantPolicy | None = None,
-) -> dict[str, QuantizedTensor | np.ndarray]:
-    """Quantize a whole state dict, honoring the skip policy.
+def quantize_model_int8(
+    input_onnx_path: str | Path,
+    output_onnx_path: str | Path,
+    reader: CalibrationDataReader,
+    config: QuantConfig | None = None,
+) -> Path:
+    """Apply static INT8 quantization to an ONNX model.
 
-    Skipped tensors are returned as their original float32 array so a caller can write
-    a mixed-precision checkpoint without special-casing lookups. Quantized tensors are
-    returned as QuantizedTensor.
+    The real function pre-processes the graph (shape inference), collects static
+    activation ranges from the reader, then hands everything to the ONNX Runtime
+    static quantizer with per-channel symmetric weights and per-tensor
+    asymmetric activations. That backend call, the tuned extra_options, and the
+    graph rewrite are the proprietary core and are stubbed here: this version
+    validates inputs, drives the calibration collector, and writes a placeholder
+    artifact so the control flow is faithful without shipping the engine.
     """
-    policy = policy or QuantPolicy()
-    out: dict[str, QuantizedTensor | np.ndarray] = {}
-    for name, weight in weights.items():
-        weight = np.asarray(weight, dtype=np.float32)
-        if policy.should_skip(name, weight.shape) or weight.ndim < 2:
-            # 1-D tensors have no output channel to quantize per-channel over, and
-            # are cheap to keep in full precision regardless.
-            out[name] = weight
-        else:
-            out[name] = quantize_tensor(weight, per_channel=True, axis=0)
-    return out
+    config = config or QuantConfig()
+    input_path = Path(input_onnx_path)
+    output_path = Path(output_onnx_path)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+
+    # Calibration drives the static activation ranges. In this excerpt the FP32
+    # forward is a stub, so we only exercise the reader to show the wiring.
+    reader.rewind()
+    n_batches = sum(1 for _ in reader)
+    logger.info("Static calibration over %d batches", n_batches)
+
+    # <<< proprietary quantize_static(...) call omitted >>>
+    # Backend, weight_type/activation_type, and tuned extra_options are stubbed.
+    output_path.write_bytes(b"INT8_STUB")
+
+    logger.info("Quantization complete (stub artifact): %s", output_path)
+    return output_path
+
+
+def cosine_similarity(a: np.ndarray, b: np.ndarray) -> float:
+    """Cosine similarity between two vectors, with a small epsilon guard."""
+    denom = float(np.linalg.norm(a) * np.linalg.norm(b)) + 1e-8
+    return float(np.dot(a.ravel(), b.ravel()) / denom)
+
+
+def validate_quantized_model(
+    embed_fp32,
+    embed_int8,
+    texts: list[str],
+    config: QuantConfig | None = None,
+) -> dict[str, float | bool | int]:
+    """Compare FP32 and INT8 embeddings and pass/fail on cosine similarity.
+
+    A correct INT8 conversion should barely move the embeddings. embed_fp32 and
+    embed_int8 are injected callables (real code builds two ONNX Runtime
+    sessions with mean pooling over the attention mask). We report mean/min/max
+    cosine similarity and compare the mean against the configured threshold.
+    """
+    config = config or QuantConfig()
+    sims = [cosine_similarity(embed_fp32(t), embed_int8(t)) for t in texts]
+    mean_sim = float(np.mean(sims))
+
+    result: dict[str, float | bool | int] = {
+        "mean_cosine_similarity": mean_sim,
+        "min_cosine_similarity": float(np.min(sims)),
+        "max_cosine_similarity": float(np.max(sims)),
+        "n_samples": len(sims),
+        "threshold": config.cosine_threshold,
+        "passed": bool(mean_sim >= config.cosine_threshold),
+    }
+    logger.info(
+        "Validation: mean_cos=%.4f, min=%.4f (threshold=%.3f) -> %s",
+        result["mean_cosine_similarity"],
+        result["min_cosine_similarity"],
+        config.cosine_threshold,
+        "PASS" if result["passed"] else "FAIL",
+    )
+    return result
 
 
 if __name__ == "__main__":
-    # Show the per-channel path and the round-trip error on a synthetic linear weight.
+    # Tiny demo: drive calibration end to end with stubbed model forwards, then
+    # validate against a near-identical INT8 stand-in to show the pass path.
+    logging.basicConfig(level=logging.INFO)
     rng = np.random.default_rng(0)
-    w = rng.standard_normal((256, 512)).astype(np.float32)
-    w[0] *= 40.0  # one high-range row: this is what per-channel handles well
 
-    qt = quantize_tensor(w, per_channel=True, axis=0)
-    recon = dequantize(qt.values, qt.scale, qt.axis)
-    err = quantization_error(w, recon)
-    print(f"per-channel relative error: {err.relative_error:.5f}")
-    print(f"per-channel max abs error:  {err.max_abs_error:.5f}")
+    reader = CalibrationDataReader(tokenizer_name="stub/tokenizer", batch_size=2)
 
-    # Contrast with per-tensor, where the one loud row inflates the single scale and
-    # coarsens every other row.
-    qt1 = quantize_tensor(w, per_channel=False)
-    err1 = quantization_error(w, dequantize(qt1.values, qt1.scale, qt1.axis))
-    print(f"per-tensor relative error:  {err1.relative_error:.5f}")
+    def forward_fp32(batch: dict[str, np.ndarray]) -> dict[str, np.ndarray]:
+        # One synthetic activation tensor derived from the batch shape.
+        return {"encoder.output": rng.standard_normal(batch["input_ids"].shape)}
+
+    ranges = collect_activation_ranges(reader, forward_fp32)
+    for name, rng_stats in ranges.items():
+        print(f"{name}: scale={rng_stats.symmetric_scale():.5f}")
+
+    excluded = select_nodes_to_exclude(["MatMul", "Softmax", "Gather"], QuantConfig())
+    assert excluded == ["node_1", "node_2"], excluded
+
+    # Zero tensor must not blow up the scale computation.
+    zero_range = ActivationRange()
+    zero_range.observe(np.zeros(8, dtype=np.float32))
+    assert zero_range.symmetric_scale() == 1.0
+
+    base = rng.standard_normal(64).astype(np.float32)
+    report = validate_quantized_model(
+        embed_fp32=lambda _t: base,
+        embed_int8=lambda _t: base + 1e-3 * rng.standard_normal(64).astype(np.float32),
+        texts=list(DEFAULT_CALIBRATION_TEXTS),
+    )
+    assert report["passed"], report
+    print("demo ok:", report)

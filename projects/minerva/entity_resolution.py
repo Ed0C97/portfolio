@@ -1,297 +1,229 @@
-"""Cross-source entity resolution for the threat-intel graph. Portfolio excerpt, adapted.
-
-Different OSINT sources describe the same real-world entity (an IP, a domain, a
-CVE, a threat actor) with slightly different spellings and disagreeing fields.
-This collapses those signals into one canonical node so attribution and
-attack-surface queries see a deduplicated graph rather than one node per source.
-
-Two-stage matching:
-  1. Strong-id match. Each entity type has a canonical key derived by normalizing
-     its natural identifier (lowercased domain without trailing dot, validated and
-     compressed IP, upper-cased CVE with zero-padding stripped). Entities that
-     produce the same key are the same node, deterministically.
-  2. Fuzzy fallback. Entities without a strong id (mostly named threat actors with
-     aliases) are matched by token-set similarity against already-resolved nodes.
-
-Field-level conflicts are resolved deterministically: the value from the
-higher-priority source wins, ties broken by higher confidence, then by a stable
-source ordering, so the same inputs always yield the same node regardless of
-arrival order. Every kept field records which source and confidence produced it
-(provenance), which is what makes a finding auditable downstream.
-
-The graph store sits behind a Protocol so this file reads standalone; production
-backs it with Neo4j. The curated threat-actor alias set and the per-source
-confidence weighting are proprietary and stubbed out.
+"""Portfolio excerpt, adapted. Shows deterministic entity resolution and
+deduplication across heterogeneous OSINT sources: canonical keying per entity
+type (IP, domain, CVE, campaign, TTP, actor) and a rank based field merge that
+is invariant to arrival order. The agent base class, the LangGraph pipeline
+context, and the upstream collectors are stubbed so the file reads on its own;
+the curated source priorities and confidence thresholds that make the real
+resolver useful are placeholders here.
 """
-
 from __future__ import annotations
 
-import enum
 import ipaddress
+import logging
 import re
+import time
+from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
-from typing import Protocol
+from typing import Any
+
+logger = logging.getLogger(__name__)
 
 
-class EntityType(enum.Enum):
-    IP = "ip"
-    DOMAIN = "domain"
-    CVE = "cve"
-    ACTOR = "actor"
+# --- Stubbed pipeline plumbing -------------------------------------------------
+# In the real system these live in minerva.agents.base and are shared across the
+# agent graph. Trimmed to the fields this excerpt exercises.
 
+@dataclass
+class CollectionContext:
+    """Shared state threaded through the agent pipeline."""
 
-# Higher wins when two sources set the same field. These are illustrative ranks,
-# not the tuned production weighting.
-SOURCE_PRIORITY: dict[str, int] = {
-    "internal_analyst": 100,
-    "commercial_feed": 60,
-    "public_feed": 40,
-    "passive_dns": 30,
-    "opportunistic": 10,
-}
-
-# CVE ids are "CVE-YYYY-N" where N has at least one digit and no fixed width.
-# The sequence number is intentionally unpadded here (\d+, not \d{4,}) because
-# early ids are short (CVE-2014-1) and the same id shows up zero-padded in some
-# feeds (CVE-2021-0044); int() below removes the padding so both forms unify.
-_CVE_RE = re.compile(r"^CVE-(\d{4})-(\d+)$", re.IGNORECASE)
+    target: str
+    query_type: str
+    # Raw entities may arrive as a flat list (direct calls, tests) or as a
+    # per-source dict {source: {"data": [...]}} produced by the collector agent.
+    raw_entities: list[dict[str, Any]] = field(default_factory=list)
+    raw_data: dict[str, Any] = field(default_factory=dict)
+    # Outputs written back for downstream agents.
+    normalized_entities: list[dict[str, Any]] = field(default_factory=list)
+    resolved_entities: list[dict[str, Any]] = field(default_factory=list)
+    errors: list[str] = field(default_factory=list)
 
 
 @dataclass
-class SignalField:
-    """One field value as asserted by one source, with its provenance."""
-
-    value: object
-    source: str
-    confidence: float  # source-reported [0.0, 1.0]
-
-
-@dataclass
-class Signal:
-    """One source's observation of an entity, before resolution."""
-
-    entity_type: EntityType
-    raw_identifier: str
-    source: str
-    confidence: float = 0.5
-    fields: dict[str, object] = field(default_factory=dict)
+class AgentResult:
+    agent_name: str
+    success: bool
+    error: str | None = None
+    metadata: dict[str, Any] = field(default_factory=dict)
 
 
-@dataclass
-class CanonicalEntity:
-    """A resolved node: canonical key plus best-value fields and their provenance."""
+class BaseAgent(ABC):
+    """Times each run, converts exceptions into a failed result, never raises."""
 
-    entity_type: EntityType
-    key: str
-    fields: dict[str, SignalField] = field(default_factory=dict)
-    contributing_sources: set[str] = field(default_factory=set)
+    name: str = "base"
 
-    def value_of(self, name: str) -> object | None:
-        """Return the winning value for a field, or None if no source set it."""
-        chosen = self.fields.get(name)
-        return chosen.value if chosen else None
-
-
-class GraphStore(Protocol):
-    """Async upsert surface for canonical nodes. Real impl targets Neo4j."""
-
-    async def upsert_entity(self, entity: CanonicalEntity) -> None: ...
-
-
-class CanonicalKeyError(ValueError):
-    """Raised when a raw identifier cannot be normalized to a canonical key."""
-
-
-def canonical_key(entity_type: EntityType, raw: str) -> str:
-    """Return the type-specific canonical key for a raw identifier.
-
-    The key is the deduplication primitive: two signals are the same entity iff
-    they share a key. Normalization must therefore be total and idempotent, so
-    equivalent-but-differently-spelled identifiers collapse and genuinely
-    different ones never collide.
-    """
-    text = raw.strip()
-    if not text:
-        raise CanonicalKeyError("empty identifier")
-
-    if entity_type is EntityType.IP:
+    async def run(self, context: CollectionContext) -> AgentResult:
+        start = time.perf_counter()
         try:
-            # ip_address collapses IPv6 zero groups and rejects junk; str() gives
-            # the canonical compressed form, so 2001:DB8::0:1 and 2001:db8::1 unify.
-            return str(ipaddress.ip_address(text))
-        except ValueError as exc:
-            raise CanonicalKeyError(f"invalid IP: {raw!r}") from exc
+            result = await self._execute(context)
+        except Exception as exc:  # noqa: BLE001 - agents must not crash the graph
+            elapsed_ms = int((time.perf_counter() - start) * 1000)
+            logger.exception("[%s] failed after %d ms: %s", self.name, elapsed_ms, exc)
+            context.errors.append(f"{self.name}: {exc}")
+            return AgentResult(agent_name=self.name, success=False, error=str(exc))
+        elapsed_ms = int((time.perf_counter() - start) * 1000)
+        logger.info("[%s] done in %d ms (success=%s)", self.name, elapsed_ms, result.success)
+        return result
 
-    if entity_type is EntityType.DOMAIN:
-        host = text.lower().rstrip(".")  # DNS treats a trailing dot as equivalent
-        if "://" in host or "/" in host or " " in host or not host:
-            raise CanonicalKeyError(f"invalid domain: {raw!r}")
-        # IDN homographs are unified via Punycode; a bare ASCII domain is unchanged.
-        try:
-            host = host.encode("idna").decode("ascii")
-        except UnicodeError as exc:
-            raise CanonicalKeyError(f"invalid domain: {raw!r}") from exc
-        return host
-
-    if entity_type is EntityType.CVE:
-        m = _CVE_RE.match(text)
-        if not m:
-            raise CanonicalKeyError(f"invalid CVE id: {raw!r}")
-        # Upper-case the year and drop any zero-padding on the sequence number so
-        # CVE-2021-0044 and cve-2021-44 both canonicalize to CVE-2021-44, while a
-        # genuinely short id such as CVE-2014-1 survives untouched.
-        return f"CVE-{m.group(1)}-{int(m.group(2))}"
-
-    if entity_type is EntityType.ACTOR:
-        # Actors have no strong id here; the alias-canonicalization table that maps
-        # "APT29" / "Cozy Bear" / "Midnight Blizzard" to one key is proprietary.
-        return _resolve_actor_alias(text)
-
-    raise CanonicalKeyError(f"unhandled entity type: {entity_type}")
+    @abstractmethod
+    async def _execute(self, context: CollectionContext) -> AgentResult:
+        ...
 
 
-def _resolve_actor_alias(name: str) -> str:
-    """Map a threat-actor name or alias to its canonical key.
+# --- Normalization helpers -----------------------------------------------------
+# Real code splits these into utils.ip_utils and utils.text_utils. Inlined here
+# so the excerpt is self contained.
 
-    The curated alias graph (thousands of aliases across naming conventions) is
-    proprietary and omitted from this excerpt.
-    """
-    raise NotImplementedError(
-        "curated threat-actor alias resolution omitted from portfolio excerpt"
-    )
-
-
-def _field_rank(f: SignalField) -> tuple[int, float, str]:
-    """Return a total ordering key for a candidate field value.
-
-    Deterministic by construction: source priority first, then source-reported
-    confidence, then a stable lexicographic source tiebreak. No wall-clock time
-    and no dependence on iteration order, so resolution is reproducible.
-    """
-    return (SOURCE_PRIORITY.get(f.source, 0), f.confidence, f.source)
+def normalize_ip(ip: str) -> str:
+    """Canonicalize an IPv4 or IPv6 address; fall back to a lowercased string."""
+    try:
+        return str(ipaddress.ip_address(ip.strip()))
+    except ValueError:
+        return ip.strip().lower()
 
 
-class EntityResolver:
-    """Resolve a batch of raw signals into canonical entities.
+def normalize_domain(domain: str) -> str:
+    """Lowercase, strip surrounding whitespace, drop the trailing root dot."""
+    return domain.strip().lower().rstrip(".")
 
-    Strong-id grouping is exact and order-independent. The fuzzy pass is a
-    deliberate fallback for id-less entities only; it never overrides a
-    strong-id match.
+
+# CVE identifiers look like CVE-2021-44228: a four digit year and a serial.
+_CVE_RE = re.compile(r"CVE-\d{4}-\d{4,7}", re.IGNORECASE)
+
+
+def normalize_cve(cve: str) -> str:
+    """Uppercase the CVE identifier so mixed-case duplicates collapse to one key."""
+    return cve.strip().upper()
+
+
+# --- Resolver ------------------------------------------------------------------
+
+# Source ranking decides which asserted value wins a scalar conflict. The real
+# ordering is tuned against source reliability and is part of the product, so it
+# is stubbed here with a flat default; swap in a curated {source: rank} map.
+_SOURCE_PRIORITY: dict[str, int] = {}
+_DEFAULT_PRIORITY = 0
+
+
+class ResolverAgent(BaseAgent):
+    """Agent 02: collapse duplicate entities from many sources into one node.
+
+    Determinism is the contract: for a fixed set of input signals the resolver
+    yields the same resolved node no matter what order they arrive in, up to
+    genuine ties where two signals assert different values at identical rank.
+    That lets the pipeline be replayed and cached without spurious diffs.
     """
 
-    def __init__(self, fuzzy_threshold: float = 0.6) -> None:
-        # token-set Jaccard at or above this fuses two id-less entities
-        self.fuzzy_threshold = fuzzy_threshold
+    name = "resolver"
 
-    def resolve(self, signals: list[Signal]) -> list[CanonicalEntity]:
-        """Return canonical entities merged from the given signals."""
-        by_key: dict[tuple[EntityType, str], CanonicalEntity] = {}
-        needs_fuzzy: list[Signal] = []
+    async def _execute(self, context: CollectionContext) -> AgentResult:
+        all_entities: list[dict[str, Any]] = []
 
-        for sig in signals:
-            try:
-                key = canonical_key(sig.entity_type, sig.raw_identifier)
-            except NotImplementedError:
-                # actor alias table absent in this excerpt: route to fuzzy fallback
-                needs_fuzzy.append(sig)
+        if context.raw_entities:
+            all_entities.extend(context.raw_entities)
+        else:
+            # Flatten the per-source dict, tagging provenance on each item.
+            for source, result in context.raw_data.items():
+                for item in result.get("data", []):
+                    if not item:
+                        continue
+                    item["_source"] = source
+                    all_entities.append(item)
+
+        resolved = self._resolve(all_entities, context.query_type)
+        context.normalized_entities = all_entities
+        context.resolved_entities = resolved
+
+        logger.info("[resolver] %d raw to %d resolved entities", len(all_entities), len(resolved))
+        return AgentResult(
+            agent_name=self.name,
+            success=True,
+            metadata={"raw": len(all_entities), "resolved": len(resolved)},
+        )
+
+    def _resolve(self, entities: list[dict], query_type: str) -> list[dict]:
+        """Bucket entities by canonical key and merge each bucket."""
+        buckets: dict[str, dict] = {}
+        for entity in entities:
+            key = self._entity_key(entity, query_type)
+            if not key:
+                # Unkeyable entities are dropped rather than guessed at.
                 continue
-            except CanonicalKeyError:
-                # unparseable identifiers are dropped rather than guessed at
-                continue
-            self._absorb(by_key, (sig.entity_type, key), key, sig)
+            if key in buckets:
+                buckets[key] = self._merge(buckets[key], entity)
+            else:
+                buckets[key] = dict(entity)
+        return list(buckets.values())
 
-        resolved = list(by_key.values())
-        for sig in needs_fuzzy:
-            self._absorb_fuzzy(resolved, sig)
-        return resolved
+    def _entity_key(self, entity: dict, query_type: str) -> str | None:
+        """Derive a stable dedup key from an entity's discriminating fields.
 
-    def _absorb(
-        self,
-        table: dict[tuple[EntityType, str], CanonicalEntity],
-        table_key: tuple[EntityType, str],
-        canon: str,
-        sig: Signal,
-    ) -> None:
-        """Merge a signal into the canonical entity for its key, creating it if new."""
-        entity = table.get(table_key)
-        if entity is None:
-            entity = CanonicalEntity(entity_type=sig.entity_type, key=canon)
-            table[table_key] = entity
-        self._merge_fields(entity, sig)
-
-    def _absorb_fuzzy(self, resolved: list[CanonicalEntity], sig: Signal) -> None:
-        """Merge an id-less signal into the best fuzzy match, or add it as new."""
-        candidate_name = str(sig.fields.get("name", sig.raw_identifier))
-        best: CanonicalEntity | None = None
-        best_score = self.fuzzy_threshold
-        for entity in resolved:
-            if entity.entity_type is not sig.entity_type:
-                continue
-            existing_name = str(entity.value_of("name") or entity.key)
-            score = _token_set_ratio(candidate_name, existing_name)
-            if score >= best_score:
-                best, best_score = entity, score
-
-        if best is None:
-            # no confident match: seed a provisional node keyed by the raw name
-            best = CanonicalEntity(
-                entity_type=sig.entity_type,
-                key=_normalize_name(candidate_name),
-            )
-            resolved.append(best)
-        self._merge_fields(best, sig)
-
-    @staticmethod
-    def _merge_fields(entity: CanonicalEntity, sig: Signal) -> None:
-        """Fold one signal's fields into an entity, keeping the winner per field.
-
-        Applied field by field so a low-priority source can still contribute a
-        field that no higher-priority source asserted, while never overwriting a
-        field a higher-priority source already won.
+        Order matters: the checks run from the most specific signal to the least
+        so that, for example, a domain is not misread as a threat actor.
         """
-        entity.contributing_sources.add(sig.source)
-        for name, value in sig.fields.items():
-            if value is None:
+        # IP: canonical form so 8.8.8.8 and its padded variants collapse.
+        if entity.get("address"):
+            try:
+                return f"ip:{normalize_ip(str(entity['address']))}"
+            except Exception:
+                return f"ip:{entity['address']}"
+        # Domain: a name containing a dot.
+        if "." in str(entity.get("name", "")):
+            return f"domain:{normalize_domain(str(entity['name']))}"
+        # CVE: an id with the CVE- prefix.
+        if str(entity.get("id", "")).startswith("CVE-"):
+            return f"cve:{normalize_cve(str(entity['id']))}"
+        # Campaign or pulse: an id paired with a first-observed timestamp.
+        if entity.get("id") and entity.get("first_observed"):
+            return f"campaign:{entity['id']}"
+        # TTP: a technique identifier.
+        if entity.get("technique_id"):
+            return f"ttp:{str(entity['technique_id']).upper()}"
+        # Threat actor: a name that carries a motivation.
+        if entity.get("name") and entity.get("motivation"):
+            return f"actor:{str(entity['name']).lower()}"
+        return None
+
+    def _merge(self, base: dict, update: dict) -> dict:
+        """Fold ``update`` into ``base`` field by field, order independently.
+
+        Lists take the set union, numbers take the max (higher confidence and
+        higher scores win), timestamps take the later value, and a missing field
+        is filled from whichever signal has it. Provenance keys (underscore
+        prefixed) are internal and never merged into the resolved node.
+        """
+        merged = dict(base)
+        for k, v in update.items():
+            if k.startswith("_"):
                 continue
-            candidate = SignalField(value=value, source=sig.source,
-                                    confidence=sig.confidence)
-            incumbent = entity.fields.get(name)
-            if incumbent is None or _field_rank(candidate) > _field_rank(incumbent):
-                entity.fields[name] = candidate
-
-
-def _normalize_name(name: str) -> str:
-    """Lowercase, strip punctuation, and collapse whitespace for name matching."""
-    stripped = re.sub(r"[^\w\s]", " ", name.lower())
-    return re.sub(r"\s+", " ", stripped).strip()
-
-
-def _token_set_ratio(a: str, b: str) -> float:
-    """Return token-set Jaccard similarity in [0.0, 1.0].
-
-    Token-set over token-sequence because actor aliases reorder and pad words
-    ("Cozy Bear Group" vs "the Cozy Bear"); set overlap ignores order and
-    duplication, which is the right invariance for alias matching.
-    """
-    tokens_a = set(_normalize_name(a).split())
-    tokens_b = set(_normalize_name(b).split())
-    if not tokens_a or not tokens_b:
-        return 0.0
-    return len(tokens_a & tokens_b) / len(tokens_a | tokens_b)
+            if isinstance(v, list) and isinstance(merged.get(k), list):
+                merged[k] = sorted(set(merged[k] + v), key=str)
+            elif isinstance(v, (int, float)) and isinstance(merged.get(k), (int, float)):
+                merged[k] = max(merged[k], v)
+            elif k in ("last_seen", "last_observed") and v and merged.get(k):
+                merged[k] = max(str(merged[k]), str(v))
+            elif v is not None and merged.get(k) is None:
+                merged[k] = v
+        return merged
 
 
 if __name__ == "__main__":
-    # Same IP two ways, one domain with a trailing dot, one zero-padded CVE.
-    batch = [
-        Signal(EntityType.IP, "2001:DB8::0:1", "public_feed", 0.4,
-               {"asn": "AS64500", "country": "NL"}),
-        Signal(EntityType.IP, "2001:db8::1", "internal_analyst", 0.9,
-               {"country": "DE", "note": "sinkholed"}),
-        Signal(EntityType.DOMAIN, "Evil.Example.COM.", "passive_dns", 0.5,
-               {"first_seen": "2026-01-02"}),
-        Signal(EntityType.CVE, "cve-2021-0044", "commercial_feed", 0.8,
-               {"cvss": 9.8}),
-    ]
-    for e in EntityResolver().resolve(batch):
-        winners = {k: (f.value, f.source) for k, f in e.fields.items()}
-        print(e.entity_type.value, e.key, winners)
+    import asyncio
+
+    # Two Shodan and OTX views of the same IP arriving in different order still
+    # resolve to a single node with unioned ports and max confidence.
+    ctx = CollectionContext(
+        target="8.8.8.8",
+        query_type="ip",
+        raw_entities=[
+            {"type": "ip", "address": "8.8.8.8", "open_ports": [53, 443],
+             "source": ["shodan"], "malicious_confidence": 0.0},
+            {"type": "ip", "address": "8.8.8.8", "open_ports": [53, 80],
+             "source": ["otx"], "malicious_confidence": 0.1},
+        ],
+    )
+    asyncio.run(ResolverAgent().run(ctx))
+    node = ctx.resolved_entities[0]
+    assert sorted(node["open_ports"]) == [53, 80, 443]
+    assert node["malicious_confidence"] == 0.1
+    print(node)

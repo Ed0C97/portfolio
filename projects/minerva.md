@@ -23,6 +23,6 @@ Private project, sole architect and developer. Source code private and proprieta
 
 ## Code sample
 
-A small, IP-safe excerpt is in [`minerva/`](./minerva/): cross-source entity resolution into canonical graph nodes (deterministic conflict resolution with provenance), and a static read-only safety guard that makes LLM-generated Cypher structurally incapable of mutating or exhausting the graph. The curated threat-actor alias table, per-source weighting, and Neo4j backend are stubbed.
+A small, IP-safe excerpt is in [`minerva/`](./minerva/): deterministic cross-source entity resolution (canonical keying per entity type with a rank-based, order-invariant field merge) and the read-only Cypher validator that keeps the natural-language query path structurally incapable of mutating or exhausting the graph. The tuned source-priority ranking, the graph schema, and the LLM translation layer are stubbed.
 
 _© 2026 Edoardo Caciolo, all rights reserved. Proprietary and not open source; source code is private and available for review on request._

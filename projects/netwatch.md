@@ -23,6 +23,6 @@ Personal project, not a published production release. Source code private and pr
 
 ## Code sample
 
-A small, IP-safe excerpt is in [`netwatch/`](./netwatch/): periodic C2 beaconing detection from the coefficient of variation of connection inter-arrival gaps, and channel-isolated async alert dispatch that formats findings as ArcSight CEF and fans them out to multiple SIEM sinks without letting one dead sink block the others. The trained anomaly model, real sink endpoints, and signature catalog are stubbed.
+A small, IP-safe excerpt is in [`netwatch/`](./netwatch/): the interpretable C2 beaconing rule (regularity from the coefficient of variation of connection inter-arrival gaps, plus period bounds and a DNS high-frequency check), and channel-isolated alert dispatch that formats findings as ArcSight CEF and fans them out to multiple SIEM channels without letting one dead sink block the others. The trained anomaly model, the tuned detection thresholds, and the real SIEM identity are stubbed.
 
 _© 2026 Edoardo Caciolo, all rights reserved. Proprietary and not open source; source code is private and available for review on request._

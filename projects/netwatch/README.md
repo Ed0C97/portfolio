@@ -8,13 +8,13 @@ Two excerpts from NETWATCH, a Linux eBPF endpoint security monitor that scores k
 
 ## What each file shows
 
-- **`beaconing_detector.py`**: the cheap, interpretable C2 beaconing signal that runs ahead of the trained anomaly model. Scores how periodic a connection series is from the coefficient of variation of inter-arrival gaps (CV = std / mean), maps CV onto a bounded regularity score with `1 / (1 + CV)`, sorts defensively for out-of-order eBPF ring-buffer events, and offers an optional jitter-tolerance pre-filter that snaps gaps within a band of the mean back to the mean so intentional implant jitter does not mask the beacon.
-- **`alert_dispatch.py`**: channel-isolated async fan-out of a finding to multiple SIEM sinks. Formats each finding once as an ArcSight CEF line (with the two distinct header versus extension escaping rules), fans out concurrently with `asyncio.gather(..., return_exceptions=True)` so one dead sink cannot cancel or stall the others, logs per-sink failures, and suppresses duplicate findings inside a TTL window with a bounded, time-ordered seen-set.
+- **`beaconing_detector.py`**: the interpretable command-and-control beaconing rule that runs alongside the ML detector. It scores how regular a connection series is from the coefficient of variation of its inter-arrival gaps, bounds the plausible beacon period, and adds a DNS high-frequency check, mapping a hit to a Cyber Kill Chain phase and a severity. The kill-chain module is stubbed to a minimal `Finding`.
+- **`alert_dispatch.py`**: multi-channel alert fan-out. It formats a finding once and delivers it concurrently to isolated channels (syslog in CEF, webhook, file, WebSocket) so one dead sink cannot stall the others, with sliding-window deduplication in front to cut alert fatigue.
 
 ## Deliberately omitted
 
-- The trained anomaly model (per-process behavior and the learned beaconing classifier) and the per-environment tuning it feeds; the CV detector shown here is the rules-layer fallback, not the model.
-- The real sink endpoints (Syslog, HTTP webhook, file, WebSocket transports) behind the `AlertSink` Protocol, and the full CEF and LEEF signature catalog that maps detections to ATT&CK techniques.
-- All thresholds and windows shown here (minimum event count, regularity threshold, jitter tolerance, dedup TTL, seen-set cap) are illustrative defaults, not tuned production values.
+- The production-tuned detection constants (minimum samples, regularity threshold, period bounds, window sizes, DNS thresholds, and the confidence-curve coefficients) are the calibration moat and are replaced with labelled placeholders.
+- The real SIEM identity (vendor, product, version) and the tuned CEF severity integers, which are part of the SIEM integration contract, are stubbed to example values.
+- The webhook transport and retry policy (the async HTTP client, the exponential-backoff parameters, and bearer-token auth) are collapsed to a stub with no endpoint or credentials; the trained anomaly model behind the rules layer is not included.
 
 _© 2026 Edoardo Caciolo, all rights reserved. Portfolio excerpt shared to demonstrate engineering; not licensed for reuse. Full source is private._

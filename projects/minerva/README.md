@@ -4,17 +4,17 @@ Two excerpts from MINERVA, an API-first OSINT and cyber-threat-intelligence engi
 
 **Context:** see [../minerva.md](../minerva.md) for the full project overview.
 
-**Stack:** Python, standard library (`ipaddress`, the IDNA codec, `re`), Neo4j behind a Protocol.
+**Stack:** Python, standard library (`ipaddress`, `re`). The real system runs a LangGraph agent pipeline over Neo4j, stubbed here.
 
 ## What each file shows
 
-- **`entity_resolution.py`**: cross-source entity resolution into a deduplicated graph. Derives a total, idempotent canonical key per entity type (compressed IP via `ipaddress`, trailing-dot and IDN-normalized domain, zero-padding-stripped CVE), groups strong-id matches exactly and order-independently, and falls back to token-set (Jaccard) similarity for id-less named actors. Field conflicts resolve deterministically by (source priority, confidence, stable source tiebreak), and every kept value records its provenance.
-- **`readonly_cypher_guard.py`**: a static read-only safety guard for LLM-generated Cypher. Tokenizes with quoted-string and comment awareness so keywords inside literals are never matched, rejects write clauses (including LOAD CSV and USING PERIODIC COMMIT) and write or admin procedures, refuses unbounded variable-length paths while allowing bounded `*N` and `*..M` forms, and clamps or injects a trailing `LIMIT`. Documented as defense in depth in front of a read-only Neo4j account, not a replacement for it.
+- **`entity_resolution.py`**: deterministic entity resolution and deduplication across heterogeneous OSINT sources. Derives a canonical key per entity type (IP, domain, CVE, campaign, TTP, threat actor) so signals about the same real-world thing collapse to one node, then merges their fields with a rank-based policy that is invariant to arrival order (the higher-priority source wins a scalar conflict). The agent base class and the collector pipeline are trimmed to what the file exercises.
+- **`readonly_cypher_guard.py`**: the security-critical validator that keeps the natural-language query interface read-only. An LLM turns a question into Cypher, and this is the last gate before the database: it enforces four things (no write clauses, an allowed read-only clause set, a mandatory RETURN, and a capped LIMIT) and blocks two denial-of-service shapes (dangerous procedures and unbounded variable-length paths).
 
 ## Deliberately omitted
 
-- The curated threat-actor alias graph (thousands of aliases across naming conventions) that maps names like APT29, Cozy Bear, and Midnight Blizzard to one canonical key; `_resolve_actor_alias` raises `NotImplementedError` and actors fall back to token-set matching in this excerpt.
-- The tuned per-source confidence weighting; `SOURCE_PRIORITY` here is an illustrative rank order, not production values.
-- The real Neo4j-backed graph store; only the `GraphStore` Protocol surface is shown, and the read-only database credentials (the actual non-bypassable control the guard sits in front of) live in the deployment, not here.
+- The curated per-source reliability ranking (`_SOURCE_PRIORITY`) that decides scalar conflicts is the tuned part and is stubbed to a flat default; confidence thresholds and scoring weights are not present.
+- The upstream collector agents, the full LangGraph pipeline wiring, and the fuzzy matcher are reduced to the fields this excerpt exercises.
+- For the guard: the full read-only clause whitelist is trimmed to a comment, and the real graph schema, the few-shot NL-to-Cypher examples, and the LLM translation layer (provider, model, system prompt, temperature) are not reproduced. The non-bypassable control remains a read-only database account; the guard is defense in depth in front of it.
 
 _© 2026 Edoardo Caciolo, all rights reserved. Portfolio excerpt shared to demonstrate engineering; not licensed for reuse. Full source is private._

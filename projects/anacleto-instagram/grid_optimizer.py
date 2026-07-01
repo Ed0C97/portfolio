@@ -1,249 +1,269 @@
-"""Portfolio excerpt, adapted. Feed-grid order optimizer.
-
-Anacleto arranges a set of posts into the Instagram feed grid so that the visual
-whole reads as coherent, not just each post in isolation. This is a permutation
-search: for n posts there are n! orderings, so we cannot enumerate. This file
-ships two interchangeable search strategies behind one interface, matching the
-project's "MCTS / Beam / Greedy" design:
-
-  Greedy: nearest-neighbour construction from every seed, O(n^3) pair scoring,
-          good enough for the small feeds this path targets.
-  Beam:   keeps the best `beam_width` partial arrangements at each step and
-          extends them, trading time for arrangement quality.
-
-The aesthetic scorer is INJECTED as a Protocol. Only an obvious illustrative
-placeholder ships here. The real scorer (color-harmony, composition, flow,
-balance, and theme dimensions, their weights, and the CNN/color feature
-extraction behind them) is the product moat and stays private.
-
-The scoring contract is deliberately incremental: score_pair(a, b) rates the
-adjacency of two posts, and score_arrangement(order) rates a whole (possibly
-partial) ordering. Beam search leans on the pairwise delta so extending a
-partial arrangement costs one pair evaluation, not a full rescore.
+"""Portfolio excerpt, adapted. Feed-grid order optimization: an MCTS search
+over Instagram grid arrangements (with a greedy baseline it reuses for
+pre-filtering and rollouts) that maximizes an aesthetic coherence score. This
+shows the real search structure; the product itself (tuned similarity band,
+penalty curve, scoring weights, and the 3x3 grid-harmony model) is stubbed
+behind obvious placeholders so the excerpt reads on its own without handing
+over the recipe.
 """
 
 from __future__ import annotations
 
-import hashlib
-from collections.abc import Sequence
-from dataclasses import dataclass
-from typing import Protocol
+import math
+import random
+import time
+from dataclasses import dataclass, field
+from typing import Callable, Dict, List, Optional, Sequence, Set, Tuple
 
+import numpy as np
 
-@dataclass(frozen=True, slots=True)
-class Post:
-    """A candidate post. `features` is an opaque handle the scorer understands.
+# PLACEHOLDER weights, not the product's. Real weights split continuity into
+# color, semantic, and texture channels and are tuned per account; these merely
+# sum to 1.0 so the search runs.
+_PLACEHOLDER_WEIGHTS: Dict[str, float] = {"continuity": 0.5, "diversity": 0.25, "aesthetic": 0.25}
 
-    The engine fills `features` with extracted color/composition vectors. Nothing
-    in this file inspects it; only the injected scorer does, which keeps feature
-    extraction out of the portfolio excerpt.
-    """
+def extract_feature_vectors(image_paths: Sequence[str]) -> List[np.ndarray]:
+    """Stub for the real extractor. Production runs each image through color,
+    texture, and semantic-embedding models and concatenates a normalized vector;
+    here we return random unit vectors so the search has inputs."""
+    rng = np.random.default_rng(0)
+    return [v / (np.linalg.norm(v) or 1.0) for v in (rng.standard_normal(32) for _ in image_paths)]
 
-    post_id: str
-    features: object = None
+@dataclass
+class OptimizerConfig:
+    """The similarity band drives the search: adjacent posts should be related
+    but not near-duplicates, so a transition scores highest inside the band. The
+    band values below are PLACEHOLDERS, not the tuned production band (part of
+    the moat). The MCTS parameters follow the standard formulation."""
 
+    weights: Dict[str, float] = field(default_factory=lambda: dict(_PLACEHOLDER_WEIGHTS))
+    sequence_length: int = 9  # a 3x3 grid
+    min_similarity: float = 0.25  # placeholder lower bound
+    max_similarity: float = 0.9  # placeholder upper bound
+    optimal_similarity: float = 0.5  # placeholder target (real value is tuned)
+    timeout_seconds: float = 60.0
+    num_simulations: int = 500
+    exploration_constant: float = 1.414  # sqrt(2), the standard UCB constant
+    max_children: int = 10  # cap branching per node
+    prefilter_top_k: int = 20
 
-class AestheticScorer(Protocol):
-    """Scores how coherent a feed arrangement looks. Higher is better.
+    def validate(self) -> None:
+        total = sum(self.weights.values())
+        if abs(total - 1.0) > 0.01:
+            raise ValueError(f"Weights must sum to 1.0, got {total}")
 
-    score_pair is bounded (the placeholder returns a value in [0, 1]) and is
-    treated as the marginal contribution of placing `b` immediately after `a`.
-    score_arrangement is the sum of the adjacent pair scores along the ordering,
-    so it is not bounded to [0, 1]: it grows with length, up to (len - 1) times
-    the per-pair maximum. Beam search relies on that additive decomposition, so
-    score_arrangement must stay consistent with score_pair or beam pruning would
-    compare running scores that no longer mean the same thing.
-    """
+@dataclass
+class FeedSequence:
+    """One candidate ordering of image indices plus its coherence score."""
 
-    def score_pair(self, a: Post, b: Post) -> float:
-        """Rate the visual adjacency of two neighbouring posts, in [0, 1]."""
-        ...
+    indices: List[int] = field(default_factory=list)
+    total_score: float = 0.0
 
-    def score_arrangement(self, order: Sequence[Post]) -> float:
-        """Sum score_pair over adjacent posts. Orders under length 2 score 0."""
-        ...
+    def __len__(self) -> int:
+        return len(self.indices)
 
+    def __getitem__(self, idx: int) -> int:
+        return self.indices[idx]
 
-class PlaceholderScorer:
-    """Illustrative scorer only. NOT the real aesthetic model.
+@dataclass
+class OptimizationResult:
+    best_sequence: FeedSequence
+    sequences_evaluated: int = 0
+    total_time: float = 0.0
 
-    It rewards adjacency between posts whose id digests differ in their low bit,
-    a stand-in "contrast" signal that makes the demo produce a visibly
-    non-trivial ordering. The production scorer replaces this with the real
-    color-harmony, composition, flow, balance, and theme dimensions and their
-    tuned weights. Those are omitted from this excerpt.
-    """
+class SimilarityMatrix:
+    """Precomputed pairwise cosine similarities. The search reads transition
+    scores in tight inner loops, so we pay O(n squared) once and read O(1)."""
+
+    def __init__(self, vectors: Sequence[np.ndarray]):
+        self.n = len(vectors)
+        self.matrix = np.zeros((self.n, self.n))
+        for i in range(self.n):
+            for j in range(i, self.n):
+                self.matrix[i, j] = self.matrix[j, i] = 1.0 if i == j else self._cosine(vectors[i], vectors[j])
+
+    def get(self, i: int, j: int) -> float:
+        return float(self.matrix[i, j])
 
     @staticmethod
-    def _digest_bit(post_id: str) -> int:
-        # A stable per-id bit. We use blake2b rather than the builtin hash() so
-        # the signal (and therefore the demo output) is reproducible across
-        # processes; hash() of a str is salted by PYTHONHASHSEED and varies run
-        # to run, which would undercut the deterministic framing of the search.
-        digest = hashlib.blake2b(post_id.encode("utf-8"), digest_size=8).digest()
-        return digest[0] & 1
+    def _cosine(v1: np.ndarray, v2: np.ndarray) -> float:
+        norm = np.linalg.norm(v1) * np.linalg.norm(v2)
+        return float(np.dot(v1, v2) / norm) if norm else 0.0
 
-    def score_pair(self, a: Post, b: Post) -> float:
-        # Reward neighbours whose id digests disagree in the low bit: an
-        # alternating pattern reads as "contrast" for this illustrative signal.
-        contrast = self._digest_bit(a.post_id) ^ self._digest_bit(b.post_id)
-        return 1.0 if contrast else 0.25
+class Scorer:
+    """Shared scoring, kept off the search so any strategy can reuse it."""
 
-    def score_arrangement(self, order: Sequence[Post]) -> float:
-        if len(order) < 2:
-            return 0.0
-        return sum(
-            self.score_pair(order[i], order[i + 1]) for i in range(len(order) - 1)
+    def __init__(self, config: OptimizerConfig):
+        self.config = config
+        # Hook for the real grid renderer plus aesthetic model. The production
+        # grid scorer (its row, column, diagonal, center, and corner weights and
+        # its ideal row and column similarity thresholds) is the actual moat and
+        # is intentionally not reproduced here: it lives behind this callable.
+        self.external_scorer: Optional[Callable[[FeedSequence], float]] = None
+
+    def transition(self, a: int, b: int, sims: SimilarityMatrix) -> float:
+        """Score one adjacency: reward similarities inside the band, penalize
+        pairs too different or too alike. The shape (piecewise, peaking in the
+        band) is real; the penalty constants are round placeholders, not the
+        tuned falloff the product uses."""
+        sim = sims.get(a, b)
+        lo, hi, opt = self.config.min_similarity, self.config.max_similarity, self.config.optimal_similarity
+        if sim < lo:  # too different
+            return sim / lo * 0.5
+        if sim > hi:  # too alike
+            return 1.0 - (sim - hi) / (1.0 - hi) * 0.5
+        return 1.0 - abs(sim - opt) / max(opt - lo, hi - opt) * 0.5
+
+    def sequence(self, seq: FeedSequence, sims: SimilarityMatrix) -> FeedSequence:
+        """Aggregate the coherence score for a whole ordering. The real system
+        derives color, semantic, and texture continuity from feature-vector
+        slices plus a grid-harmony term; here those collapse into one continuity
+        signal so the blending structure stays intact while the models stay stubbed."""
+        if len(seq) < 2:
+            return seq
+        transitions = [sims.get(seq[i], seq[i + 1]) for i in range(len(seq) - 1)]
+        opt = self.config.optimal_similarity
+        continuity = 1.0 - abs(float(np.mean(transitions)) - opt) / opt
+        diversity = min(1.0, float(np.std(transitions)) * 2)
+        aesthetic = 0.7  # stubbed aesthetic model
+        w = self.config.weights
+        seq.total_score = w["continuity"] * continuity + w["diversity"] * diversity + w["aesthetic"] * aesthetic
+        # Blend in grid-harmony when a real scorer is wired in. The split below
+        # is an illustrative placeholder, not the tuned production blend ratio.
+        if self.external_scorer is not None:
+            seq.total_score = seq.total_score * 0.5 + self.external_scorer(seq) * 0.5
+        return seq
+
+def greedy_prefilter(scorer: Scorer, vectors: List[np.ndarray], top_k: int) -> List[int]:
+    """Shrink the search space before MCTS with a greedy baseline: from a fixed
+    start take the best next image until the pool fills. The same greedy step
+    drives MCTS rollouts. Real code also backfills for diversity; trimmed here."""
+    n = len(vectors)
+    if n <= top_k:
+        return list(range(n))
+    sims = SimilarityMatrix(vectors)
+    order, used = [0], {0}
+    while len(order) < top_k:
+        nxt = max((c for c in range(n) if c not in used), key=lambda c: scorer.transition(order[-1], c, sims), default=None)
+        if nxt is None:
+            break
+        order.append(nxt)
+        used.add(nxt)
+    return order
+
+@dataclass
+class MCTSNode:
+    """A partial ordering plus the visit statistics UCB needs."""
+
+    indices: List[int]
+    available: Set[int]
+    visits: int = 0
+    total_value: float = 0.0
+    parent: Optional["MCTSNode"] = None
+    children: Dict[int, "MCTSNode"] = field(default_factory=dict)
+
+    @property
+    def value(self) -> float:
+        return self.total_value / self.visits if self.visits else 0.0
+
+    def ucb_score(self, c: float, parent_visits: int) -> float:
+        # Unexplored nodes get infinite priority so each action is tried once.
+        return math.inf if self.visits == 0 else self.value + c * math.sqrt(math.log(parent_visits) / self.visits)
+
+    def is_terminal(self, target: int) -> bool:
+        return len(self.indices) >= target or not self.available
+
+    def expand(self, max_children: int) -> List["MCTSNode"]:
+        actions = list(self.available)
+        if len(actions) > max_children:
+            actions = random.sample(actions, max_children)
+        for action in actions:
+            self.children.setdefault(action, MCTSNode(self.indices + [action], self.available - {action}, parent=self))
+        return list(self.children.values())
+
+class MCTSOptimizer:
+    """Global search for cases where a locally weak early choice sets up a
+    stronger overall grid. Four-phase loop: select by UCB, expand, roll out,
+    backpropagate. Greedy pre-filters the candidate pool first."""
+
+    def __init__(self, config: OptimizerConfig):
+        self.config = config
+        self.scorer = Scorer(config)
+
+    def optimize(self, feature_vectors: List[np.ndarray]) -> OptimizationResult:
+        start = time.time()
+        n = len(feature_vectors)
+        target = min(self.config.sequence_length, n)
+        candidates = (
+            greedy_prefilter(self.scorer, feature_vectors, self.config.prefilter_top_k)
+            if n > self.config.prefilter_top_k
+            else list(range(n))
         )
+        sims = SimilarityMatrix([feature_vectors[i] for i in candidates])
+        idx_map = dict(enumerate(candidates))
+        root = MCTSNode(indices=[], available=set(range(len(candidates))))
+        best_rollout: Optional[FeedSequence] = None
+        evaluated = 0
+        for _ in range(self.config.num_simulations):
+            if time.time() - start > self.config.timeout_seconds:
+                break
+            node = self._select(root)
+            if not node.is_terminal(target) and node.visits > 0:
+                children = node.expand(self.config.max_children)
+                if children:
+                    node = random.choice(children)
+            indices, value = self._rollout(node, target, sims)
+            evaluated += 1
+            if best_rollout is None or value > best_rollout.total_score:
+                best_rollout = FeedSequence(indices=indices, total_score=value)
+            self._backpropagate(node, value)
+        # Most-visited path is the robust MCTS pick; fall back to the best
+        # rollout if the tree path came out incomplete (e.g. immediate timeout).
+        best = FeedSequence(indices=list(self._best_path(root).indices))
+        if len(best) < target and best_rollout is not None:
+            best = best_rollout
+        best.indices = [idx_map[i] for i in best.indices]
+        self.scorer.sequence(best, SimilarityMatrix(feature_vectors))
+        return OptimizationResult(best, sequences_evaluated=evaluated, total_time=time.time() - start)
 
+    def _select(self, root: MCTSNode) -> MCTSNode:
+        node = root
+        while node.children and not node.is_terminal(self.config.sequence_length):
+            node = max(node.children.values(), key=lambda c: c.ucb_score(self.config.exploration_constant, node.visits))
+        return node
 
-@dataclass(frozen=True, slots=True)
-class Arrangement:
-    """A scored ordering of posts. `score` is the coherence of `order`."""
+    def _rollout(self, node: MCTSNode, target: int, sims: SimilarityMatrix) -> Tuple[List[int], float]:
+        """Play the ordering out to full length greedily, then score it."""
+        indices, available = list(node.indices), set(node.available)
+        while len(indices) < target and available:
+            nxt = max(available, key=lambda c: self.scorer.transition(indices[-1], c, sims)) if indices else random.choice(list(available))
+            indices.append(nxt)
+            available.discard(nxt)
+        return indices, self.scorer.sequence(FeedSequence(indices=indices), sims).total_score
 
-    order: tuple[Post, ...]
-    score: float
+    @staticmethod
+    def _backpropagate(node: Optional[MCTSNode], value: float) -> None:
+        while node is not None:
+            node.visits += 1
+            node.total_value += value
+            node = node.parent
 
+    @staticmethod
+    def _best_path(root: MCTSNode) -> MCTSNode:
+        node = root
+        while node.children:  # most-visited child, less noisy than raw value
+            node = max(node.children.values(), key=lambda c: c.visits)
+        return node
 
-class SearchStrategy(Protocol):
-    """A pluggable order-search algorithm. The engine picks one at runtime."""
-
-    def search(self, posts: Sequence[Post], scorer: AestheticScorer) -> Arrangement:
-        ...
-
-
-class GreedySearch:
-    """Nearest-neighbour construction. Fast path for small feeds.
-
-    Start from each possible first post, then repeatedly append the unused post
-    with the best pairwise score against the current tail. Restarting from every
-    seed costs O(n^3) pair evaluations (n seeds, each an O(n^2) construction) but
-    removes the first-move bias a single seed would bake in; for the small n this
-    feature targets that is cheap.
-    """
-
-    def search(self, posts: Sequence[Post], scorer: AestheticScorer) -> Arrangement:
-        items = list(posts)
-        if len(items) < 2:
-            return Arrangement(tuple(items), 0.0)
-
-        best: Arrangement | None = None
-        for seed in items:
-            order = [seed]
-            remaining = [p for p in items if p is not seed]
-            while remaining:
-                tail = order[-1]
-                # deterministic tie-break: pick the highest pair score, and on a
-                # tie the lexicographically smaller id, so runs are reproducible.
-                # min() over (-score, id) gives "max score, then smallest id".
-                nxt = min(
-                    remaining,
-                    key=lambda p, tail=tail: (-scorer.score_pair(tail, p), p.post_id),
-                )
-                order.append(nxt)
-                remaining.remove(nxt)
-            candidate = Arrangement(tuple(order), scorer.score_arrangement(order))
-            if best is None or _better(candidate, best):
-                best = candidate
-        assert best is not None
-        return best
-
-
-class BeamSearch:
-    """Beam search over feed orderings.
-
-    State is a partial arrangement plus its running pairwise score. At each step
-    every beam entry is extended by each unused post; we keep the top
-    `beam_width` by running score. Because score is additive over adjacent pairs,
-    extending costs a single score_pair call, and the running score is exact for
-    the partial order (no rescore needed).
-
-    Pruning is the whole point: without the width cap this degrades to breadth
-    first over n! leaves. Ties are broken deterministically so results are
-    reproducible and the beam does not silently reorder equal-scoring states.
-    """
-
-    def __init__(self, beam_width: int = 8) -> None:
-        if beam_width < 1:
-            raise ValueError("beam_width must be at least 1")
-        self.beam_width = beam_width
-
-    def search(self, posts: Sequence[Post], scorer: AestheticScorer) -> Arrangement:
-        items = list(posts)
-        n = len(items)
-        if n < 2:
-            return Arrangement(tuple(items), 0.0)
-
-        # a beam entry: (running_score, used_index_mask, order_tuple)
-        # the bitmask makes "which posts are still placed" an O(1) membership
-        # test, cheaper than scanning the order tuple on every expansion.
-        beam: list[tuple[float, int, tuple[Post, ...]]] = [
-            (0.0, 1 << i, (items[i],)) for i in range(n)
-        ]
-
-        for _ in range(n - 1):
-            expanded: list[tuple[float, int, tuple[Post, ...]]] = []
-            for running, mask, order in beam:
-                tail = order[-1]
-                for i in range(n):
-                    if mask & (1 << i):
-                        continue  # post i already placed on this path
-                    step = scorer.score_pair(tail, items[i])
-                    expanded.append(
-                        (running + step, mask | (1 << i), order + (items[i],))
-                    )
-            beam = self._prune(expanded)
-
-        # every beam entry is now a complete permutation; the running score is
-        # the exact additive arrangement score, so no final rescore is needed
-        top = beam[0]
-        return Arrangement(top[2], top[0])
-
-    def _prune(
-        self, entries: list[tuple[float, int, tuple[Post, ...]]]
-    ) -> list[tuple[float, int, tuple[Post, ...]]]:
-        # sort by score descending, then by a stable order key so equal-scoring
-        # arrangements keep a fixed, reproducible ranking across runs
-        entries.sort(key=lambda e: (-e[0], _order_key(e[2])))
-        return entries[: self.beam_width]
-
-
-class GridOptimizer:
-    """Facade: pick a strategy, inject a scorer, get the best feed order."""
-
-    def __init__(
-        self,
-        strategy: SearchStrategy | None = None,
-        scorer: AestheticScorer | None = None,
-    ) -> None:
-        self.strategy: SearchStrategy = strategy or BeamSearch()
-        self.scorer: AestheticScorer = scorer or PlaceholderScorer()
-
-    def optimize(self, posts: Sequence[Post]) -> Arrangement:
-        """Return the highest-scoring ordering the chosen strategy found."""
-        return self.strategy.search(posts, self.scorer)
-
-
-def _better(a: Arrangement, b: Arrangement) -> bool:
-    """Total order on arrangements: score first, then a stable id tie-break."""
-    if a.score != b.score:
-        return a.score > b.score
-    return _order_key(a.order) < _order_key(b.order)
-
-
-def _order_key(order: Sequence[Post]) -> tuple[str, ...]:
-    return tuple(p.post_id for p in order)
-
+def optimize_feed(image_paths: Sequence[str], config: Optional[OptimizerConfig] = None) -> OptimizationResult:
+    """Extract features for the images, then search for the best grid ordering."""
+    cfg = config or OptimizerConfig()
+    cfg.validate()
+    return MCTSOptimizer(cfg).optimize(extract_feature_vectors(image_paths))
 
 if __name__ == "__main__":
-    # The placeholder scorer is fully deterministic (stable digest, no salted
-    # hash()), so this output is identical across processes and runs.
-    demo_posts = [Post(post_id=f"p{i}") for i in range(6)]
-    optimizer = GridOptimizer(strategy=BeamSearch(beam_width=4))
-    result = optimizer.optimize(demo_posts)
-    print("order:", [p.post_id for p in result.order], "score:", result.score)
-
-    # the greedy fast path over the same posts and scorer, for comparison
-    greedy = GridOptimizer(strategy=GreedySearch())
-    fast = greedy.optimize(demo_posts)
-    print("greedy:", [p.post_id for p in fast.order], "score:", fast.score)
+    # Tiny demo on stub features so the search runs end to end. Real usage passes
+    # image paths and a tuned config; the order here is arbitrary because the
+    # feature extractor is stubbed.
+    result = optimize_feed([f"post_{i}.jpg" for i in range(12)])
+    print(f"order={result.best_sequence.indices} score={result.best_sequence.total_score:.3f}")
