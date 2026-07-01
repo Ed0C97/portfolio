@@ -44,6 +44,6 @@ Working prototype with an automated test suite and a fully offline demo mode. So
 
 ## Code sample
 
-A small, IP-safe excerpt is in [`people-os/`](./people-os/): the supporting craft behind an AI-native people-operations toolkit, namely MCP server wiring, a typed LangGraph screening pipeline, and a stratified synthetic-data generator, with prompts and rubrics deliberately left out.
+A small, IP-safe excerpt is in [`people-os/`](./people-os/): the offline decision-quality gate (`evaluation.py`) that scores hiring-AI decisions for correctness, run-to-run consistency, and a demographic-parity fairness gap, plus supporting craft, MCP server wiring, a typed LangGraph screening pipeline, and a stratified synthetic-data generator. The scorer, rubric, and prompts stay private.
 
 _© 2026 Edoardo Caciolo, all rights reserved. Proprietary and not open source; source code is private and available for review on request._

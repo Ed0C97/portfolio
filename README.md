@@ -22,6 +22,8 @@ The published excerpts are chosen to show concrete engineering, each tied to the
 - **Resilience and operability**: circuit breakers on a monotonic clock, multi-backend secret resolution, and graceful-degradation fallbacks ([Sentinel](projects/sentinel.md), [fast-inference](projects/fast-inference.md)).
 - **Security-conscious design**: SSRF and DNS-rebinding defense on a local gateway, injection-safe SQL over a recursive CTE, and fail-closed field encryption ([BOT Garage](projects/bot-garage.md), [Aptus](projects/aptus.md)).
 - **Threat detection and intelligence**: coefficient-of-variation C2 beaconing detection and channel-isolated SIEM alerting ([NETWATCH](projects/netwatch.md)); cross-source entity resolution into a knowledge graph and read-only-by-construction query safety ([MINERVA](projects/minerva.md)).
+- **AI evaluation and fairness**: an offline decision-quality gate with per-class metrics, Cohen's kappa run-to-run consistency, and a demographic-parity fairness gap that treats bias as a measured, regressable quantity ([people-os](projects/people-os.md)).
+- **Trustworthy data capture**: confidence-gated OCR field extraction that persists a field only above a confidence threshold and routes weaker matches to human review ([BOT Garage](projects/bot-garage.md)).
 
 ## Featured
 

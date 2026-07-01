@@ -1,6 +1,7 @@
 
-# Keep the Claude Code memory file local, not tracked.
+# Keep the Claude Code local guidance files out of version control.
 .claude/CLAUDE.md
+.claude/portfolio-playbook.md
 
 # Python build artifacts
 __pycache__/

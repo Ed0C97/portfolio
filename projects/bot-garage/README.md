@@ -1,6 +1,6 @@
 # bot-garage: code samples
 
-Curated, self-contained excerpts from **bot-garage**, a self-hosted Python application that tracks a small vehicle fleet (maintenance catalogue, expenses, stock, and WhatsApp reminders). These three files are chosen to show engineering craft, security thinking, a clean cryptography abstraction, and a tidy presentation layer, without reproducing any product-specific logic.
+Curated, self-contained excerpts from **bot-garage**, a self-hosted Python application that tracks a small vehicle fleet (maintenance catalogue, expenses, stock, and WhatsApp reminders). These files show engineering craft: confidence-gated OCR ingestion, security thinking, a clean cryptography abstraction, and a tidy presentation layer, without reproducing any product-specific logic.
 
 **Context:** see [../bot-garage.md](../bot-garage.md) for the full project write-up.
 
@@ -8,6 +8,7 @@ Curated, self-contained excerpts from **bot-garage**, a self-hosted Python appli
 
 ## What each file shows
 
+- **`ocr_field_extraction.py`**: the honesty-of-data discipline behind OCR import. Given OCR output (tokens carrying a confidence), it extracts registration fields (plate, VIN, first-registration date, owner) by format and labelled anchor, aggregates each field's confidence as the minimum over its tokens (a value is only as trustworthy as its weakest token), and gates on a threshold: a field is accepted and safe to persist only above the gate, and a weaker match is routed to a review queue with its best guess rather than silently written. The local vision-language OCR model itself is stubbed.
 - **`ssrf_guarded_client.py`**: A dependency-free HTTP client for a *local-only* gateway. Before any outbound request it validates the configured base URL: scheme must be `http(s)` and the host must resolve to loopback, which rejects `file://`, link-local metadata endpoints (`169.254.169.254`), and arbitrary internal hosts. Shows SSRF defence-in-depth on an unauthenticated local API, plus wrapped-response error handling over stdlib `urllib`.
 - **`field_encryption.py`**: Transparent application-level encryption for sensitive columns using Fernet (AES-CBC + HMAC). Ciphertext is tagged with an `enc:` prefix so encrypted state is visible for audit/debugging; `encrypt()` is idempotent, and `decrypt()` fails *explicitly* (returns the ciphertext untouched, never invented plaintext) when the key is missing or wrong. Includes the read/write wrapping pattern that keeps crypto at the data layer instead of scattered across endpoints.
 - **`workbook_theme.py`**: A declarative openpyxl presentation layer: one frozen `Theme` dataclass plus module-level style constants drive headers, banded tables, native Excel tables, freeze panes, drop-down data validation, and conditional-formatting rules. One change to the palette radiates across every generated worksheet.
@@ -20,6 +21,7 @@ To keep the product's value private and these files readable standalone, the fol
 - The gateway's full API contract, session lifecycle, QR/pairing flow, and every notification message template (the domain-specific reminder logic and copy).
 - The complete database schema (about 18 tables), the per-vehicle store classes, the Postgres adapter, migrations, and all domain field names.
 - The scheduling/cost/maintenance-classification engines and the LLM-facing data model.
+- The local vision-language OCR model, its image preprocessing, and the token decoding behind `run_ocr`; the excerpt starts from OCR output and shows the confidence-gating discipline, not the model.
 - Business-specific category names, thresholds, branding strings, and any data that identifies real vehicles or owners.
 
 Imports are stubbed or minimised and the excerpts are lightly trimmed; the author's real structure, naming style, and comments are preserved.
