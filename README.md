@@ -34,7 +34,7 @@ The published excerpts are chosen to show concrete engineering, each tied to the
 
 | Project | What it is |
 | --- | --- |
-| [Anacleto](projects/anacleto-instagram.md) | A REST API and engine that analyzes Instagram images, computes an optimal feed order, schedules posts, and publishes them automatically through the official Meta Graph API. |
+| [Anacleto](projects/anacleto-instagram.md) | A multitenant SaaS that automates the Instagram content pipeline with self-hosted vision AI: it analyzes images, optimizes the feed grid, generates on-brand captions, publishes through the Meta Graph API, and closes the loop by learning from real post performance. |
 | [Aptus](projects/aptus.md) | A career-intelligence platform that aligns a candidate's CV with a job description and returns a scored, evidence-backed match that both recruiters and candidates can audit. |
 | [ARBOR](projects/arbor.md) | A multi-tenant AI platform that discovers, enriches, and reasons over real-world entities, combining a knowledge graph, vector search, and an event-sourced data store. |
 | [BOT Garage](projects/bot-garage.md) | A local-first workshop management application that tracks vehicle maintenance, costs, and documents, with OCR import of data straight from registration and invoice PDFs. |
