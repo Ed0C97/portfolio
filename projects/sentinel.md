@@ -23,7 +23,7 @@ Sentinel analyzes legal and business documents, primarily due-diligence reports,
 - **Enterprise security and auth**: JWT in HttpOnly cookies, SAML 2.0, OIDC, TOTP MFA, WebAuthn passkeys, rate limiting, secrets management, and an archived audit log.
 - **Billing and CPQ**: usage metering and configure-price-quote flows.
 - **Multiple distribution surfaces**: a web UI, an Electron desktop app, a Python SDK, and a marketing site.
-- **Leverages reusable in-house toolkits**: builds on a set of framework-agnostic, independently-versioned libraries (document OCR, retrieval grounding and hallucination detection, prompt-program optimization, recursive LLM execution) designed to be reused across multiple projects, not only here.
+- **Leverages reusable in-house toolkits**: builds on a set of framework-agnostic, independently-versioned libraries (document OCR, retrieval grounding and hallucination detection, prompt-program optimization, recursive LLM execution, GPU fleet capacity planning and autoscaling) designed to be reused across multiple projects, not only here.
 
 ## Tech Stack
 
