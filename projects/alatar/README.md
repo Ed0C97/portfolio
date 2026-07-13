@@ -1,8 +1,8 @@
-# Aptus: code samples
+# Alatar: code samples
 
-Three excerpts from the Python backend of Aptus, a career-intelligence platform that aligns a CV with a job description and returns a scored, evidence-backed match. These files were chosen to show engineering craft (clean architecture, SQL craft, and pragmatic document processing) without exposing the product's matching/scoring logic.
+Three excerpts from the Python backend of Alatar, a career-intelligence platform that aligns a CV with a job description and returns a scored, evidence-backed match. These files were chosen to show engineering craft (clean architecture, SQL craft, and pragmatic document processing) without exposing the product's matching/scoring logic.
 
-**Context:** see [../aptus.md](../aptus.md) for the full project overview.
+**Context:** see [../alatar.md](../alatar.md) for the full project overview.
 
 **Stack:** Python 3.12, async SQLAlchemy + PostgreSQL (recursive CTEs), `Protocol`-based dependency inversion, frozen slotted dataclasses, `re`-based parsing.
 

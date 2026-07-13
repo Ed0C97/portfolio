@@ -1,10 +1,10 @@
-# Aptus
+# Alatar
 
 > A career-intelligence platform that aligns a candidate's CV with a job description and returns a scored, evidence-backed match that both recruiters and candidates can audit.
 
 ## Overview
 
-Aptus reads a CV and a job description, extracts structured candidate and role data with large language models, and produces an overall fit score, a per-category breakdown, a gap list, and an Applicant Tracking System (ATS) keyword analysis. Every claim in the result is tied back to the exact passage it came from in the source documents, so the final verdict is traceable rather than opaque. It serves two audiences in one system: candidates optimizing their CV against a specific role, and recruiters who need a defensible, explainable screen. Compliance with EU AI Act employment-context requirements is treated as a first-class design constraint, with consent gating, data-governance records, and an auditable evidence trail built into the platform from the ground up.
+Alatar reads a CV and a job description, extracts structured candidate and role data with large language models, and produces an overall fit score, a per-category breakdown, a gap list, and an Applicant Tracking System (ATS) keyword analysis. Every claim in the result is tied back to the exact passage it came from in the source documents, so the final verdict is traceable rather than opaque. It serves two audiences in one system: candidates optimizing their CV against a specific role, and recruiters who need a defensible, explainable screen. Compliance with EU AI Act employment-context requirements is treated as a first-class design constraint, with consent gating, data-governance records, and an auditable evidence trail built into the platform from the ground up.
 
 ## Highlights
 
@@ -41,6 +41,6 @@ Active, in-development monorepo: substantial backend engines, a Next.js client, 
 
 ## Code sample
 
-A small, IP-safe excerpt is in [`aptus/`](./aptus/): injection-safe recursive-CTE graph traversal (parameter-bound, never string-interpolated), a multi-strategy document pipeline with native-versus-OCR routing, and provider-protocol abstractions. The CV-to-JD scoring and matching logic stays private.
+A small, IP-safe excerpt is in [`alatar/`](./alatar/): injection-safe recursive-CTE graph traversal (parameter-bound, never string-interpolated), a multi-strategy document pipeline with native-versus-OCR routing, and provider-protocol abstractions. The CV-to-JD scoring and matching logic stays private.
 
 _© 2026 Edoardo Caciolo, all rights reserved. Proprietary and not open source; source code is private and available for review on request._
