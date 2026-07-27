@@ -2,6 +2,15 @@
 
 > A career-intelligence platform that aligns a candidate's CV with a job description and returns a scored, evidence-backed match that both recruiters and candidates can audit.
 
+![Match analysis: score, verdict, category breakdown and inference audit](./alatar/match-analysis.png)
+
+The product surface, shown on the Alatar landing page. The panel is the shape of a real analysis result: an overall score with an ATS reading, a per-category breakdown with its weights, the count of quoted evidence points behind the verdict, and an inference audit strip recording which model ran, how long it took, and what it cost. The interface mockups are drawn on brand in SVG, HTML and CSS rather than captured from the running product.
+
+| | |
+| --- | --- |
+| ![The four-step flow from CV to optimized PDF](./alatar/how-it-works.png) | ![The landing page in dark theme](./alatar/dark-theme.png) |
+| The guided flow: every extracted field stays editable and every rewrite stays the user's decision. | The same surface in dark theme. |
+
 ## Overview
 
 Alatar reads a CV and a job description, extracts structured candidate and role data with large language models, and produces an overall fit score, a per-category breakdown, a gap list, and an Applicant Tracking System (ATS) keyword analysis. Every claim in the result is tied back to the exact passage it came from in the source documents, so the final verdict is traceable rather than opaque. It serves two audiences in one system: candidates optimizing their CV against a specific role, and recruiters who need a defensible, explainable screen. Compliance with EU AI Act employment-context requirements is treated as a first-class design constraint, with consent gating, data-governance records, and an auditable evidence trail built into the platform from the ground up.
