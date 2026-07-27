@@ -6,21 +6,6 @@ Three excerpts from the Python backend of Alatar, a career-intelligence platform
 
 **Stack:** Python 3.12, async SQLAlchemy + PostgreSQL (recursive CTEs), `Protocol`-based dependency inversion, frozen slotted dataclasses, `re`-based parsing.
 
-## The product these samples sit behind
-
-![Match analysis: score, verdict, category breakdown and inference audit](../images/alatar/match-analysis.png)
-
-Match analysis: an overall score with an ATS reading, a per-category breakdown with its weights, the count of quoted evidence points behind the verdict, and an inference audit strip recording which model ran, how long it took, and what it cost. The interface mockups are drawn on brand in SVG, HTML and CSS rather than captured from the running product.
-
-| | |
-| --- | --- |
-| ![The four-step flow from CV to optimized PDF](../images/alatar/how-it-works.png) | ![The landing page in dark theme](../images/alatar/dark-theme.png) |
-| The guided flow: every extracted field stays editable and every rewrite stays the user's decision. | The same surface in dark theme. |
-
-![The Alatar loop: observe, build, return, and back again](../images/alatar/digital-twin.png)
-
-The observation loop underneath the product: consented CVs read what people bring, postings read what companies ask for, and the distance between the two is observable opportunity rather than a forecast. `skill_graph_traversal.py` below is the query engine that walks the skill graph this loop builds.
-
 ## What each file shows
 
 - **`skill_graph_traversal.py`**: a PostgreSQL-native recursive-CTE traversal engine. Two static SQL bodies (filtered or unfiltered) selected in Python so relation filters and depth limits are bound as parameters, never string-interpolated; `DISTINCT ON` dedupes the shortest path per node. Scales with the database instead of pulling the graph into Python.
