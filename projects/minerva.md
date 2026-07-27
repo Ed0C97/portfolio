@@ -11,7 +11,7 @@ MINERVA is a cyber threat intelligence (CTI) service. It collects open-source in
 - **Cross-source entity resolution.** Signals describing the same real-world entity across different sources are merged into one canonical node, so the graph is deduplicated rather than fragmented per source. This is the part that makes attribution and attack-surface queries meaningful.
 - **Read-only query safety by construction.** The natural-language interface is structurally prevented from mutating or exhausting the graph, so an untrusted question cannot trigger a harmful operation. Safety is enforced by the query layer, not by prompt instructions.
 
-## Tech stack
+## Tech Stack
 
 Python and FastAPI backend; Neo4j for the knowledge graph; PostgreSQL and Redis for relational state and caching; an LLM for natural-language querying over the graph; Docker for deployment.
 

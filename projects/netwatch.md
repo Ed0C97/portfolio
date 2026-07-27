@@ -11,7 +11,7 @@ NETWATCH watches what every process on a Linux host does at the kernel level and
 - **Hybrid detection with graceful fallback.** A deterministic rule layer mapped to ATT&CK techniques runs alongside machine-learning anomaly scoring (per-process behavior and periodic command-and-control beaconing). Known attacks produce high-confidence rule hits, novel deviations still surface through the models, and when a model is unavailable the engine degrades to rules-only mode rather than failing.
 - **Channel-isolated alerting.** Findings are emitted in SIEM formats (CEF, LEEF, Syslog) and delivered concurrently across Syslog, HTTP webhooks, file, and a live WebSocket, with each sink isolated so one failing channel does not block the others, plus duplicate suppression to cut alert fatigue.
 
-## Tech stack
+## Tech Stack
 
 Python user space with C eBPF programs (tracepoints, ring buffers, BPF maps); FastAPI backend; PyTorch and scikit-learn for the models; PostgreSQL with TimescaleDB for time-series persistence; a React dashboard; Docker for deployment.
 
