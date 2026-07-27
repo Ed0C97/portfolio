@@ -2,13 +2,13 @@
 
 > A career-intelligence platform that aligns a candidate's CV with a job description and returns a scored, evidence-backed match that both recruiters and candidates can audit.
 
-![Match analysis: score, verdict, category breakdown and inference audit](./alatar/match-analysis.png)
+![Match analysis: score, verdict, category breakdown and inference audit](./images/alatar/match-analysis.png)
 
 The product surface, shown on the Alatar landing page. The panel is the shape of a real analysis result: an overall score with an ATS reading, a per-category breakdown with its weights, the count of quoted evidence points behind the verdict, and an inference audit strip recording which model ran, how long it took, and what it cost. The interface mockups are drawn on brand in SVG, HTML and CSS rather than captured from the running product.
 
 | | |
 | --- | --- |
-| ![The four-step flow from CV to optimized PDF](./alatar/how-it-works.png) | ![The landing page in dark theme](./alatar/dark-theme.png) |
+| ![The four-step flow from CV to optimized PDF](./images/alatar/how-it-works.png) | ![The landing page in dark theme](./images/alatar/dark-theme.png) |
 | The guided flow: every extracted field stays editable and every rewrite stays the user's decision. | The same surface in dark theme. |
 
 ## Overview
@@ -31,7 +31,7 @@ Alatar reads a CV and a job description, extracts structured candidate and role 
 
 Matching a CV against a posting is the visible product. The system underneath it is an observation loop: every consented CV is a reading of what people bring, every posting a reading of what companies ask for, and the distance between the two is observable opportunity rather than a forecast.
 
-![The Alatar loop: observe, build, return, and back again](./alatar/digital-twin.png)
+![The Alatar loop: observe, build, return, and back again](./images/alatar/digital-twin.png)
 
 The design constraint that shapes the whole layer is honesty about coverage. Each number declares how many observations stand behind it, over how many distinct sources, in what window. Insufficient data is a first-class result rather than an error, and the prediction layer stays gated off behind a single activation policy until live counts clear each capability's floor, so no forecast is emitted on a partial sample.
 
