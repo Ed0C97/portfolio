@@ -27,6 +27,14 @@ Alatar reads a CV and a job description, extracts structured candidate and role 
 - **Pluggable provider model**: authentication, billing, database, embeddings, graph store, LLM routing, OCR, and reranking each sit behind a clean interface with interchangeable adapters, so the same code runs fully self-hosted or on managed cloud services.
 - **Operational hardening**: multi-factor authentication, CSRF protection, security headers, rate limiting, usage metering, and end-to-end observability and evaluation gating.
 
+## The data flywheel
+
+Matching a CV against a posting is the visible product. The system underneath it is an observation loop: every consented CV is a reading of what people bring, every posting a reading of what companies ask for, and the distance between the two is observable opportunity rather than a forecast.
+
+![The Alatar loop: observe, build, return, and back again](./alatar/digital-twin.png)
+
+The design constraint that shapes the whole layer is honesty about coverage. Each number declares how many observations stand behind it, over how many distinct sources, in what window. Insufficient data is a first-class result rather than an error, and the prediction layer stays gated off behind a single activation policy until live counts clear each capability's floor, so no forecast is emitted on a partial sample.
+
 ## Tech Stack
 
 | Layer | Technologies |
