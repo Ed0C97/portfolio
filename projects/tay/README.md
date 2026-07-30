@@ -18,7 +18,7 @@ The proprietary core of Tay is not included here, at any level of detail:
 
 - **Art recognition**: the on-device CoreML recognition pipeline and its models, embeddings, and matching logic.
 - **Anti-counterfeit verification**: how a canvas is authenticated as genuine.
-- **Steganographic canvas signing**: the watermark scheme and its error-correcting codec that encodes canvas identity into the artwork.
+- **Steganographic canvas signing**: the invisible authentication-signature embedding that marks a canvas as genuine.
 - **Prompt templates, domain rules, and tenant/business configuration**: narration/QA prompt content, catalog business logic, and any credentials, tokens, or environment values.
 
 These excerpts are infrastructure and "supporting craft" only; they reference the moat behind protocols and abstractions but contain none of its logic.

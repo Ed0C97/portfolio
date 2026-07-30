@@ -17,7 +17,7 @@ Python and FastAPI backend; Neo4j for the knowledge graph; PostgreSQL and Redis 
 
 ## Status
 
-Private project, sole architect and developer. Source code private and proprietary; a full code review can be provided on request.
+Beta. Private project, sole architect and developer. Source code private and proprietary; a full code review can be provided on request.
 
 ---
 

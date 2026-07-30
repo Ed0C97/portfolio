@@ -24,9 +24,9 @@ than importing the pipeline, so tests inject a stub returning canned runs
 and production injects the real graph. That seam is why this benchmark can
 run in CI at all: no model calls, no database, no fixtures on disk.
 
-Note on ground truth: labelled corpora are built per tenant from audited
-production traffic and held in object storage, never in the repository, so
-the runner is written to receive them rather than to find them.
+Note on ground truth: labelled corpora are built per tenant and held in
+object storage, never in the repository, so the runner is written to
+receive them rather than to find them.
 
 Portfolio excerpt: standalone, no project imports, no external dependencies.
 """

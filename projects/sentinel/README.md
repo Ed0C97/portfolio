@@ -26,7 +26,7 @@ These samples are measurement and infrastructure. Nothing here is part of the pr
 - The multi-agent orchestration graph and agent state container that make findings auditable.
 - The symbolic constraint compiler and the solver-ensemble reconciliation policy.
 - The serving configuration that makes batch-invariant inference deterministic on the target hardware.
-- All ground-truth corpora. Labelled sets are built per tenant from audited production traffic and held in object storage, never in a repository; `judge_benchmark.py` is written to receive them for exactly that reason.
+- All ground-truth corpora. Labelled sets are built per tenant and held in object storage, never in a repository; `judge_benchmark.py` is written to receive them for exactly that reason.
 - All concrete secret values, tenant data, connection strings, and provider integrations (delegated to external/optional libraries and stubbed here).
 
 _© 2026 Edoardo Caciolo, all rights reserved. Portfolio excerpt shared to demonstrate engineering; not licensed for reuse. Full source is private._

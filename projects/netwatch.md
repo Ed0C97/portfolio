@@ -17,12 +17,12 @@ Python user space with C eBPF programs (tracepoints, ring buffers, BPF maps); Fa
 
 ## Status
 
-Personal project, not a published production release. Source code private and proprietary; a full code review can be provided on request.
+Beta. Personal project, not a published production release. Source code private and proprietary; a full code review can be provided on request.
 
 ---
 
 ## Code sample
 
-A small, IP-safe excerpt is in [`netwatch/`](./netwatch/): the interpretable C2 beaconing rule (regularity from the coefficient of variation of connection inter-arrival gaps, plus period bounds and a DNS high-frequency check), and channel-isolated alert dispatch that formats findings as ArcSight CEF and fans them out to multiple SIEM channels without letting one dead sink block the others. The trained anomaly model, the tuned detection thresholds, and the real SIEM identity are stubbed.
+A small, IP-safe excerpt is in [`netwatch/`](./netwatch/): channel-isolated alert dispatch that formats findings as ArcSight CEF and fans them out to multiple SIEM channels without letting one dead sink block the others. The detection engine, the trained anomaly model, the tuned detection thresholds, and the real SIEM identity are stubbed or omitted.
 
 _© 2026 Edoardo Caciolo, all rights reserved. Proprietary and not open source; source code is private and available for review on request._

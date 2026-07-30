@@ -15,6 +15,6 @@ Two excerpts from MINERVA, an API-first OSINT and cyber-threat-intelligence engi
 
 - The curated per-source reliability ranking (`_SOURCE_PRIORITY`) that decides scalar conflicts is the tuned part and is stubbed to a flat default; confidence thresholds and scoring weights are not present.
 - The upstream collector agents, the full LangGraph pipeline wiring, and the fuzzy matcher are reduced to the fields this excerpt exercises.
-- For the guard: the full read-only clause whitelist is trimmed to a comment, and the real graph schema, the few-shot NL-to-Cypher examples, and the LLM translation layer (provider, model, system prompt, temperature) are not reproduced. The non-bypassable control remains a read-only database account; the guard is defense in depth in front of it.
+- For the guard: the full read-only clause whitelist is trimmed to a comment, and the real graph schema, the few-shot NL-to-Cypher examples, and the LLM translation layer (provider, model, system prompt, temperature) are not reproduced. The query interface remains read-only by construction; the guard is one layer of defense in depth.
 
 _© 2026 Edoardo Caciolo, all rights reserved. Portfolio excerpt shared to demonstrate engineering; not licensed for reuse. Full source is private._

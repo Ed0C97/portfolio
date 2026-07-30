@@ -21,11 +21,12 @@ logger = logging.getLogger(__name__)
 
 
 # narration runs the longest LLM inference per call, so it gets the tightest
-# rpm. lighter routes trade higher rpm for lower tpm.
+# rpm. lighter routes trade higher rpm for lower tpm. the production limits
+# are tuned per route and are stubbed here with placeholder values.
 _DEFAULT_POLICY: Final[dict[str, dict[str, int]]] = {
-    "narration": {"rpm": 30, "tpm": 50_000},
-    "qa": {"rpm": 60, "tpm": 30_000},
-    "tts": {"rpm": 30, "tpm": 10_000},
+    "narration": {"rpm": 1, "tpm": 1},  # stub
+    "qa": {"rpm": 1, "tpm": 1},  # stub
+    "tts": {"rpm": 1, "tpm": 1},  # stub
 }
 
 
