@@ -51,7 +51,7 @@ The design constraint that shapes the whole layer is honesty about coverage. Eac
 
 ## Status
 
-Active, in-development monorepo: substantial backend engines, a Next.js client, CI workflows, and an evolving database schema, with some operational paths deferred to later phases. Source code is private and proprietary (all rights reserved), code review available on request.
+Active, in-development prototype: a monorepo with substantial backend engines, a Next.js client, CI workflows, and an evolving database schema, with some operational paths deferred to later phases. Source code is private and proprietary (all rights reserved), code review available on request.
 
 ---
 

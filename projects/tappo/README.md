@@ -4,7 +4,7 @@ Three excerpts from Tappo, a native iOS counter/goal-tracking app (SwiftUI + Swi
 
 **Context:** see [../tappo.md](../tappo.md) for the project overview.
 
-**Stack:** Swift 5.9+, SwiftUI, SwiftData (`@Model`), PDFKit / UIKit graphics (`UIGraphicsPDFRenderer`, `ImageRenderer`), iOS 17+.
+**Stack:** Swift, SwiftUI, SwiftData (`@Model`), PDFKit / UIKit graphics (`UIGraphicsPDFRenderer`, `ImageRenderer`), iOS (deployment target 26.0).
 
 ## What each file shows
 

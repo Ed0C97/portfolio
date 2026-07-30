@@ -4,7 +4,7 @@
 
 ## Overview
 
-ARBOR ingests real-world entities such as brands, venues, and products from external sources, enriches them through an AI pipeline, and exposes them for semantic discovery and conversational querying. It targets teams building contextual discovery and recommendation products over curated entity data. The platform spans a Python backend, a React web frontend, an Expo (React Native) mobile client, and a Kubernetes-based infrastructure layer. Domain behaviour, entity categories, scoring dimensions, prompts, and ontologies, is config-driven rather than hard-coded, so new verticals can be onboarded without code changes.
+ARBOR ingests real-world entities such as brands, venues, and products from external sources, enriches them through an AI pipeline, and exposes them for semantic discovery and conversational querying. It targets teams building contextual discovery and recommendation products over curated entity data. The platform spans a Python backend, a React web frontend, an Expo (React Native) mobile client, and a Kubernetes-based infrastructure layer. Domain behaviour (entity categories, scoring dimensions, prompts, and ontologies) is config-driven rather than hard-coded, so new verticals can be onboarded without code changes.
 
 ## Highlights
 

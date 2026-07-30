@@ -1,6 +1,6 @@
 # Edoardo Caciolo: Project Portfolio
 
-> Overview documentation for my projects. **All source code is private and proprietary (not open source).** These pages describe what each system does and how it is built, without the implementation. Code review available on request.
+> Overview documentation for my projects. **Source code is private (not published); most projects are proprietary.** These pages describe what each system does and how it is built, without the implementation. Code review available on request.
 
 **Contact:** caciolo.edoardo@gmail.com, [github.com/Ed0C97](https://github.com/Ed0C97), [linkedin.com/in/edoardo-caciolo](https://www.linkedin.com/in/edoardo-caciolo)
 
@@ -20,7 +20,7 @@ The published excerpts are chosen to show concrete engineering, each tied to the
 - **Native Apple platforms**: real-time camera-quality signal processing and augmented-reality lifecycle handling in Swift ([Tay](projects/tay.md)); hand-laid PDF and CSV export ([Tappo](projects/tappo.md)).
 - **Resilience and operability**: circuit breakers on a monotonic clock, multi-backend secret resolution, and graceful-degradation fallbacks ([Sentinel](projects/sentinel.md), [fast-inference](projects/fast-inference.md)).
 - **Security-conscious design**: SSRF and DNS-rebinding defense on a local gateway, injection-safe SQL over a recursive CTE, and fail-closed field encryption ([BOT Garage](projects/bot-garage.md), [Alatar](projects/alatar.md)).
-- **Threat detection and intelligence**: coefficient-of-variation C2 beaconing detection and channel-isolated SIEM alerting ([NETWATCH](projects/netwatch.md)); cross-source entity resolution into a knowledge graph and read-only-by-construction query safety ([MINERVA](projects/minerva.md)).
+- **Threat detection and intelligence**: channel-isolated SIEM alerting in ArcSight CEF that never lets one dead sink block the others ([NETWATCH](projects/netwatch.md)); cross-source entity resolution into a knowledge graph and read-only-by-construction query safety ([MINERVA](projects/minerva.md)).
 - **AI evaluation**: dependency-free IR metrics shared by an eval harness and its metrics exporters so reported and dashboarded numbers cannot drift, and a judges-off-versus-judges-on benchmark that gates a verification layer on accuracy gain, false-positive reduction, and latency overhead together ([Sentinel](projects/sentinel.md)).
 - **Trustworthy data capture**: confidence-gated OCR field extraction that persists a field only above a confidence threshold and routes weaker matches to human review ([BOT Garage](projects/bot-garage.md)).
 
@@ -37,7 +37,7 @@ The published excerpts are chosen to show concrete engineering, each tied to the
 
 | Project | What it is |
 | --- | --- |
-| [Anacleto](projects/anacleto-instagram.md) | A multitenant SaaS that automates the Instagram content pipeline with self-hosted vision AI: it analyzes images, optimizes the feed grid, generates on-brand captions, publishes through the Meta Graph API, and closes the loop by learning from real post performance. |
+| [Anacleto](projects/anacleto-instagram.md) | A FastAPI platform that analyzes Instagram images with vision models, optimizes feed order via MCTS, Beam Search, or Greedy strategies, schedules posts, and publishes through the Meta Graph API. |
 | [Alatar](projects/alatar.md) | A career-intelligence platform that aligns a candidate's CV with a job description and returns a scored, evidence-backed match that both recruiters and candidates can audit. |
 | [ARBOR](projects/arbor.md) | A multi-tenant AI platform that discovers, enriches, and reasons over real-world entities, combining a knowledge graph, vector search, and an event-sourced data store. |
 | [BOT Garage](projects/bot-garage.md) | A local-first workshop management application that tracks vehicle maintenance, costs, and documents, with OCR import of data straight from registration and invoice PDFs. |
@@ -57,4 +57,4 @@ The published excerpts are chosen to show concrete engineering, each tied to the
 
 ---
 
-_© 2026 Edoardo Caciolo, all rights reserved. Proprietary and not open source; source code is private and available for review on request._
+_© 2026 Edoardo Caciolo, all rights reserved. Source code is private and available for review on request._

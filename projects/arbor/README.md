@@ -14,6 +14,8 @@ the *plumbing* of intelligent search, the parts that are interesting as
 engineering, distilled and trimmed so each file reads standalone. Internal
 imports are stubbed; nothing here depends on the rest of the codebase.
 
+**Context:** see [../arbor.md](../arbor.md) for the full project overview.
+
 ## What each file shows
 
 ### `hybrid_search.py`: Hybrid retrieval with RRF fusion
@@ -23,9 +25,9 @@ with **Reciprocal Rank Fusion** (the `1/(k + rank)` formula, `k = 60`, with
 configurable per-source weights). Includes an `EntityResolver` that
 deduplicates results coming from multiple sources via UUID grouping plus
 fuzzy name matching (Jaccard over normalized tokens), merging metadata with a
-source-priority policy. This is why ARBOR beats vanilla single-vector RAG on
-entity queries: it catches both "feels like what you mean" and "exact name
-match" in one pass.
+source-priority policy. This is what hybrid retrieval adds over vanilla
+single-vector RAG on entity queries: it catches both "feels like what you
+mean" and "exact name match" in one pass.
 
 ### `reranking_pipeline.py`: Multi-stage ranking funnel
 A cost-aware **learning-to-rank funnel** that progressively narrows

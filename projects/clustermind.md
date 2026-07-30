@@ -15,7 +15,7 @@ ClusterMind sizes infrastructure and estimates its cost from a small set of inpu
 - **Static code and infrastructure analysis.** Scans common Python web frameworks for routes, dependencies, and concurrency, and infers infrastructure intent from container and orchestration files.
 - **Load-test integration.** Generates, runs, and parses load tests across multiple industry-standard tools, samples host resource usage, and feeds structured results back into the plan.
 - **Plain-language interview.** An adaptive questionnaire translates everyday answers into numeric drivers with uncertainty ranges, asking follow-up questions conditionally based on prior responses.
-- **Investment-grade economics.** Computes monthly and annual TCO plus unit economics (cost per user, per request, per inference batch, per token) from a dated price snapshot, accounting for on-demand, reserved, and spot pricing.
+- **Commitment-aware economics.** Computes monthly and annual TCO plus unit economics (cost per user, per request, per inference batch, per token) from a dated price snapshot, accounting for on-demand, reserved, and spot pricing.
 - **Uncertainty and sensitivity analysis.** Propagates per-driver uncertainty through the full pipeline to report confidence bands on headline metrics, ranks which drivers most affect cost, and grades overall confidence, pointing to the specific measurements that would tighten the estimate.
 - **Multi-format reporting.** Renders Markdown, HTML, executive summaries with JSON export, optional PDF, and brand-aware documents that adapt to a project's fonts, colors, and logo.
 - **Cloud-agnostic instance mapping.** Reasons in abstract resource classes and maps each to a concrete AWS, GCP, or Azure instance type.

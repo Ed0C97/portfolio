@@ -4,7 +4,7 @@
 
 ## Overview
 
-BOT Garage is a single-user maintenance manager for one or more vehicles. It keeps a maintenance catalogue, service records, a parts and consumables inventory, administrative deadlines, and an expense ledger in a single local database, then generates spreadsheets, documents, and PDF reports from that data. It is designed around a motorcycle use case but the data model is keyed per vehicle and supports a multi-vehicle fleet. Everything runs on the user's own machine, including document OCR and the optional AI assistant, so vehicle documents and personal data never leave the device.
+BOT Garage is a single-user maintenance manager for one or more vehicles. It keeps a maintenance catalogue, service records, a parts and consumables inventory, administrative deadlines, and an expense ledger in a single local database, then generates spreadsheets, documents, and PDF reports from that data. It is designed around a motorcycle use case but the data model is keyed per vehicle and supports a multi-vehicle fleet. Everything runs on the user's own machine, including document OCR and the optional AI assistant, so in the default configuration vehicle documents and personal data never leave the device.
 
 ## Highlights
 
@@ -13,7 +13,7 @@ BOT Garage is a single-user maintenance manager for one or more vehicles. It kee
 - Administrative deadline tracker (insurance, road tax, inspection, garage rent) with automatic due-date calculation and recurring-cost accrual.
 - Expense ledger with per-year and per-category roll-ups, plus an insurance card covering annual premiums.
 - OCR import of a new vehicle from a registration PDF and of work items from a workshop invoice PDF, extracting structured fields and line items from scanned documents.
-- A built-in honesty-of-data discipline: low-confidence OCR fields are never silently accepted: they are surfaced for manual confirmation, and only verified structured data is persisted, so the database stays trustworthy.
+- A built-in honesty-of-data discipline: low-confidence OCR fields are never silently accepted; they are surfaced for manual confirmation, and only verified structured data is persisted, so the database stays trustworthy.
 - Multi-format document generation, including spreadsheets with live formulas, ODS/ODT/PDF manuals, and JSON/CSV exports, all driven from the same source of truth.
 - Audience-specific PDF reports for the owner, the mechanic, and a prospective buyer (the buyer dossier automatically omits owner personal data).
 - A local conversational assistant that acts on the database through tool calling (for example, managing the parts shopping list) without any cloud dependency.
