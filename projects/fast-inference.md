@@ -14,7 +14,7 @@ fast-inference serves embedding, reranking, and text-generation models behind a 
 - **High-throughput request handling**: asynchronous dynamic batching coalesces concurrent requests into efficient GPU batches, with error fan-out to every waiting caller and drain-on-stop; a pre-allocated GPU tensor pool is implemented as a standalone component to keep cudaMalloc off the hot path (serving-path integration pending).
 - **Distributed, fault-tolerant serving**: a health-aware load balancer routes traffic to the best-performing healthy worker and fails fast when capacity is unavailable, keeping the service responsive under partial outages.
 - **Multiple model classes**: wraps a BGE-m3 embedder, a BGE-reranker-v2-m3 cross-encoder, and a Qwen2.5-7B-Instruct generator with KV-cache behind one consistent interface, with streaming and standard sampling controls for generation.
-- **Built-in benchmarking**: a profiling suite covers throughput under concurrent load, latency sweeps across batch sizes, sequence lengths, and 4 backends (Torch FP32, ORT FP32, ORT INT8, ORT INT8 + Triton), a roofline analysis separating memory-bound from compute-bound kernels, and an end-to-end RAG cost comparison between cloud-API and local inference, making each optimization measurable.
+- **Built-in benchmarking**: one command discovers the backends the current machine can execute, measures them with device synchronization before every timer stop (p50/p95/p99), and writes JSON plus a Markdown table carrying the full hardware description; backends the machine cannot run are reported with a reason and no numbers. Underneath it: throughput under concurrent load, latency sweeps across batch sizes and sequence lengths, a roofline analysis separating memory-bound from compute-bound kernels, and an end-to-end RAG cost comparison between cloud-API and local inference.
 
 ## Tech Stack
 
@@ -32,9 +32,40 @@ fast-inference serves embedding, reranking, and text-generation models behind a 
 | Optional (pipeline tooling) | LangGraph, OpenAI SDK, Matplotlib |
 | Infrastructure | Docker, Docker Compose (NVIDIA CUDA base image) |
 
+## Control panel
+
+The server ships a self-contained operator dashboard (no build step, no external requests) that reports the machine it is running on, watches the batcher coalesce live traffic, exercises every endpoint, and renders the committed benchmark results.
+
+![Status panel](images/fast-inference/01-status.png)
+
+Machine, capabilities and loaded models. Capabilities are stated as facts rather than failures: on hardware without CUDA the panel says the Triton kernels are not in the execution path and that this is a property of the machine, not a broken build.
+
+![Live batching](images/fast-inference/02-live-batching.png)
+
+The dynamic batcher under load. A burst generator fires N simultaneous embedding requests so the coalescing is visible: 32 requests reaching the batcher and leaving as 6 batches, with the queue wait sitting around the configured 10 ms window.
+
+![Playground](images/fast-inference/03-playground-embeddings.png)
+
+The playground calls the real endpoints: embeddings with the cosine matrix computed in the browser, cross-encoder reranking, and streaming generation reporting time to first token and tokens per second.
+
+![Streaming generation](images/fast-inference/04-playground-chat.png)
+
+![Benchmarks](images/fast-inference/05-benchmarks.png)
+
+Measured backends and the analytical roofline. Backends the machine cannot run are listed with their reason and no numbers; the roofline states which hardware specification its ceilings come from and that nothing in it was executed.
+
 ## Status
 
-Prototype / portfolio engineering project, single-author, structured and documented like a production server. Targets NVIDIA CUDA GPUs and runs containerized or natively. Source code private, review available on request.
+Prototype / portfolio engineering project, single-author, structured and documented like a production server. The full path (Triton kernels, CUDA execution provider, fp16 tensor cores) targets NVIDIA GPUs; the same code serves models on Apple Silicon (torch on Metal, ONNX Runtime on the Neural Engine) and on CPU, and reports which one it is actually using.
+
+What is real, and what is not, stated plainly:
+
+- Runs end to end on CUDA, Apple Silicon and CPU: server, dashboard, quantization pipeline and benchmark harness were all exercised on a laptop before this page was written.
+- The Triton kernels are an optimization and ablation layer, not the serving path, and compile for CUDA only.
+- The distributed router, circuit breaker and worker manager are implemented and unit-tested, but no gateway wires them into the serving path yet.
+- Performance figures are only quoted from committed benchmark files with their hardware attached. An earlier results table was retracted from the repository because it was never a committed measurement.
+
+Source code private, review available on request.
 
 ---
 
