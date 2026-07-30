@@ -11,6 +11,8 @@ Projects come in two kinds, kept separate on purpose:
 - **Projects with code samples** carry a folder with a short README and a few IP-safe excerpts, adapted and trimmed so each file reads standalone. The excerpts show the engineering (patterns, algorithms, resilience), never the proprietary core.
 - **Additional projects** are described at the design and capability level, with no code sample published. A sample or review can be arranged on request.
 
+Images referenced by any page live in `projects/images/<project-slug>/`, never beside the code samples, so a code folder stays code only.
+
 ## What the code samples demonstrate
 
 The published excerpts are chosen to show concrete engineering, each tied to the project that evidences it:

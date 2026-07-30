@@ -8,13 +8,13 @@ Self-contained excerpts from the quantization, serving, and resilience layers of
 
 Self-hosted, OpenAI-compatible, serving embeddings, cross-encoder reranking and generation. It runs the full path (Triton kernels, CUDA execution provider) on NVIDIA hardware and the portable path on Apple Silicon or CPU, and reports which one it is actually using rather than assuming.
 
-![Control panel, status](01-status.png)
+![Control panel, status](../images/fast-inference/01-status.png)
 
-![Dynamic batching under load](02-live-batching.png)
+![Dynamic batching under load](../images/fast-inference/02-live-batching.png)
 
 The batcher coalescing a burst of concurrent requests: 32 requests reaching the queue and leaving as 6 batches, with the wait sitting around the configured 10 ms window. `dynamic_batcher.py` below is the excerpt of that mechanism.
 
-![Measured backends and roofline](05-benchmarks.png)
+![Measured backends and roofline](../images/fast-inference/05-benchmarks.png)
 
 Every backend the host can execute, measured with device synchronization before each timer stop; backends it cannot execute are listed with a reason and no numbers. The roofline states which hardware specification its ceilings come from and that nothing in it was executed.
 
