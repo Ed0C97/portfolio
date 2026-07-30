@@ -15,6 +15,7 @@ This project pairs a bachelor's thesis (Electronic Engineering, L-8, Sapienza Un
 - A formal safety filter based on Control Barrier Functions that keeps every command inside a safe set defined by track boundaries, the tire friction limit, and sideslip limits, turning an unverified policy output into a provably safe command.
 - A model-based supervisory controller and arbitration scheme that can override the learned policy when a safety index indicates risk, giving robust fallback behavior under uncertainty.
 - A physics-grounded vehicle and tire simulation with sensor noise models and domain randomization in three regimes (nominal, uniform, and a curriculum schedule from 5% to 100% over 500k training steps), enabling robust training and sim-to-real transfer.
+- An onboard deployment target: the stack is sized for embedded execution on NVIDIA Jetson AGX Orin hardware.
 - Perceptual domain adaptation for sim-to-real image transfer, and a real-time control dashboard for monitoring each layer of the stack.
 - A modular, multi-rate control loop deployable as robotics nodes, with each estimation, control, and safety layer exposed independently and driven by external configuration.
 
