@@ -21,7 +21,7 @@ The published excerpts are chosen to show concrete engineering, each tied to the
 - **Resilience and operability**: circuit breakers on a monotonic clock, multi-backend secret resolution, and graceful-degradation fallbacks ([Sentinel](projects/sentinel.md), [fast-inference](projects/fast-inference.md)).
 - **Security-conscious design**: SSRF and DNS-rebinding defense on a local gateway, injection-safe SQL over a recursive CTE, and fail-closed field encryption ([BOT Garage](projects/bot-garage.md), [Alatar](projects/alatar.md)).
 - **Threat detection and intelligence**: coefficient-of-variation C2 beaconing detection and channel-isolated SIEM alerting ([NETWATCH](projects/netwatch.md)); cross-source entity resolution into a knowledge graph and read-only-by-construction query safety ([MINERVA](projects/minerva.md)).
-- **AI evaluation and fairness**: an offline decision-quality gate with per-class metrics, Cohen's kappa run-to-run consistency, and a demographic-parity fairness gap that treats bias as a measured, regressable quantity ([people-os](projects/people-os.md)); dependency-free IR metrics shared by an eval harness and its metrics exporters so reported and dashboarded numbers cannot drift, and a judges-off-versus-judges-on benchmark that gates a verification layer on accuracy gain, false-positive reduction, and latency overhead together ([Sentinel](projects/sentinel.md)).
+- **AI evaluation**: dependency-free IR metrics shared by an eval harness and its metrics exporters so reported and dashboarded numbers cannot drift, and a judges-off-versus-judges-on benchmark that gates a verification layer on accuracy gain, false-positive reduction, and latency overhead together ([Sentinel](projects/sentinel.md)).
 - **Trustworthy data capture**: confidence-gated OCR field extraction that persists a field only above a confidence threshold and routes weaker matches to human review ([BOT Garage](projects/bot-garage.md)).
 
 ## Featured
@@ -45,7 +45,6 @@ The published excerpts are chosen to show concrete engineering, each tied to the
 | [fast-inference](projects/fast-inference.md) | A self-hosted, OpenAI-compatible inference server for embedding, reranking, and generation models, built to keep retrieval-augmented generation (RAG) workloads fast and fully on-premise. |
 | [MINERVA](projects/minerva.md) | An API-first OSINT engine that aggregates public cyber-threat data into a knowledge graph and answers natural-language questions about the threat landscape. |
 | [NETWATCH](projects/netwatch.md) | A Linux endpoint security monitor that observes process, network, and file activity at the kernel level with eBPF, scores it against rules and machine-learning models, and dispatches alerts to a dashboard and SIEM systems. |
-| [people-os](projects/people-os.md) | An AI-assisted hiring platform that exposes resume screening, interview scoring, and onboarding as Model Context Protocol (MCP) tools, paired with an evaluation framework that measures decision quality before changes ship. |
 | [Porfirio Magazine](projects/porfirio-magazine.md) | A full-stack digital magazine platform that unifies bilingual publishing, payments, engagement analytics, and automated social-media content generation in a single product. |
 | [Sentinel](projects/sentinel.md) | A multi-tenant document intelligence platform for credit and risk teams that extracts, verifies, scores, and attests risk in due-diligence documentation, producing grounded, reproducible findings instead of free-form summaries. |
 | [Tappo](projects/tappo.md) | A native iOS app for tracking counts, habits, and goal progress across multiple projects, with Home Screen widgets and Lock Screen Live Activities that stay in sync with the app. |
@@ -54,7 +53,7 @@ The published excerpts are chosen to show concrete engineering, each tied to the
 
 ## Academic coursework
 
-- [Academic coursework](projects/academic-coursework.md): graduate interactive-graphics and machine-learning assignments from the MSc in Robotics and Artificial Intelligence at Sapienza University of Rome, implemented from scratch.
+- [Academic coursework](projects/academic-coursework.md): graduate-level interactive-graphics and machine-learning assignments (Sapienza University of Rome), implemented from scratch.
 
 ---
 
