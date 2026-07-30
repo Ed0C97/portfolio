@@ -40,7 +40,7 @@ class MerweScaledSigmaPoints:
         will raise here rather than degrade silently.
         """
         n = self.n
-        S = np.linalg.cholesky((n + self.lambda_) * P)
+        S = np.linalg.cholesky((n + self.lambda_) * P).T  # rows of S are the sigma-point offsets
         sigmas = np.zeros((2 * n + 1, n))
         sigmas[0] = x
         for i in range(n):

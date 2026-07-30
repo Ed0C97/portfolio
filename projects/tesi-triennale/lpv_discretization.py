@@ -11,7 +11,7 @@ from typing import Callable, List, Tuple
 import numpy as np
 from scipy.linalg import expm
 
-IVY, IR, IDELTA = 4, 5, 0
+IVX, IVY, IR, IDELTA = 3, 4, 5, 0
 
 
 class LPVModel:
@@ -47,7 +47,7 @@ class LPVModel:
 
         for vx, mu in self.vertices:
             self._set_mu(mu)
-            state_eq[IVX_:= 3] = vx
+            state_eq[IVX] = vx
 
             Ac_full, Bc_full = self._linearize(state_eq)
             A_lat = np.array([[Ac_full[IVY, IVY], Ac_full[IVY, IR]],

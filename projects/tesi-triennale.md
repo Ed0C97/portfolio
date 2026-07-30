@@ -1,5 +1,7 @@
 # Hybrid Multi-Layer Control for Robust Autonomous Driving
 
+_Official thesis title: "Hybrid Control Architectures for Robust Autonomous Driving: A Multi-Layer Approach" (B.Sc. in Electronic Engineering, Sapienza University of Rome)._
+
 > A bachelor's thesis and simulation framework for a layered learning-plus-model-based control stack that keeps a Formula Student driverless race car safe and accurate when tire grip and vehicle parameters are uncertain.
 
 ## Overview
@@ -9,10 +11,10 @@ This project pairs a bachelor's thesis (Electronic Engineering, L-8, Sapienza Un
 ## Highlights
 
 - Online estimation layer that tracks vehicle state and uncertain physical parameters (friction, cornering stiffness) in real time, so the rest of the stack adapts as grip conditions change.
-- A reinforcement-learning driving policy that produces steering and longitudinal commands, decoupled from the safety layer so the learned behavior can be formally constrained rather than blindly trusted.
+- A reinforcement-learning driving policy (Proximal Policy Optimization, trained with Stable-Baselines3 on a custom Gymnasium environment) that produces steering and longitudinal commands, decoupled from the safety layer so the learned behavior can be formally constrained rather than blindly trusted.
 - A formal safety filter based on Control Barrier Functions that keeps every command inside a safe set defined by track boundaries, the tire friction limit, and sideslip limits, turning an unverified policy output into a provably safe command.
 - A model-based supervisory controller and arbitration scheme that can override the learned policy when a safety index indicates risk, giving robust fallback behavior under uncertainty.
-- A physics-grounded vehicle and tire simulation with sensor noise models and domain randomization, enabling robust training and sim-to-real transfer.
+- A physics-grounded vehicle and tire simulation with sensor noise models and domain randomization in three regimes (nominal, uniform, and a curriculum schedule from 5% to 100% over 500k training steps), enabling robust training and sim-to-real transfer.
 - Perceptual domain adaptation for sim-to-real image transfer, and a real-time control dashboard for monitoring each layer of the stack.
 - A modular, multi-rate control loop deployable as robotics nodes, with each estimation, control, and safety layer exposed independently and driven by external configuration.
 
