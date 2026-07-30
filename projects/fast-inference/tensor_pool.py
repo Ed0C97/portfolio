@@ -93,7 +93,7 @@ class TensorPool:
                     "Pool '%s' exhausted (%d fallbacks); consider increasing size.",
                     name, self._stats[name]["fallbacks"],
                 )
-            return torch.empty(spec.shape, dtype=spec.dtype, device=self.device)
+            return torch.zeros(spec.shape, dtype=spec.dtype, device=self.device)
 
     def release(self, name: str, tensor: torch.Tensor) -> None:
         """Return a buffer to the pool. A full pool means this was a fallback, so drop it."""

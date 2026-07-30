@@ -34,11 +34,10 @@ class BatchStats:
     total_batches: int = 0
     total_wait_ms: float = 0.0
     max_wait_ms_observed: float = 0.0
-    batch_sizes: list[int] = field(default_factory=list)
 
     @property
     def avg_batch_size(self) -> float:
-        return sum(self.batch_sizes) / max(len(self.batch_sizes), 1)
+        return self.total_requests / max(self.total_batches, 1)
 
     @property
     def avg_wait_ms(self) -> float:
@@ -137,7 +136,6 @@ class DynamicBatcher:
 
         self.stats.total_batches += 1
         self.stats.total_requests += len(batch)
-        self.stats.batch_sizes.append(len(batch))
         for req in batch:
             wait_ms = (now - req.enqueue_time) * 1000
             self.stats.total_wait_ms += wait_ms

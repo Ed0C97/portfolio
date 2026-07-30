@@ -9,12 +9,12 @@ fast-inference serves embedding, reranking, and text-generation models behind a 
 ## Highlights
 
 - **Drop-in OpenAI/Cohere-compatible API**: embeddings, chat completions with streaming, and reranking endpoints, plus health and metrics, validated against the public schemas so existing clients integrate without changes.
-- **GPU-level performance engineering**: custom fused GPU kernels and memory-aware execution reduce HBM traffic for the small-batch, memory-bound regime typical of RAG, cutting latency without sacrificing accuracy on precision-sensitive operations.
+- **GPU-level performance engineering**: hand-written Triton kernels (fused RMSNorm/LayerNorm using single-pass Welford statistics, tiled attention with online softmax, fused SwiGLU activations) and memory-aware execution reduce HBM traffic for the small-batch, memory-bound regime typical of RAG, cutting latency without sacrificing accuracy on precision-sensitive operations.
 - **Low-precision quantization**: an INT8 quantization path shrinks model footprint and speeds inference while protecting numerically sensitive layers, delivering smaller, faster models with controlled quality impact.
 - **High-throughput request handling**: asynchronous dynamic batching coalesces concurrent requests into efficient GPU batches and recycles pre-allocated GPU memory off the hot path, sustaining throughput under concurrent load.
 - **Distributed, fault-tolerant serving**: a health-aware load balancer routes traffic to the best-performing healthy worker and fails fast when capacity is unavailable, keeping the service responsive under partial outages.
-- **Multiple model classes**: wraps embedding, cross-encoder reranking, and instruction-tuned generation models behind one consistent interface, with streaming and standard sampling controls for generation.
-- **Built-in benchmarking**: a profiling suite measures throughput, latency across batch and sequence dimensions and backends, memory- vs compute-bound behavior, and end-to-end RAG cost comparison between cloud-API and local inference, making each optimization measurable.
+- **Multiple model classes**: wraps a BGE-m3 embedder, a BGE-reranker-v2-m3 cross-encoder, and a Qwen2.5-7B-Instruct generator with KV-cache behind one consistent interface, with streaming and standard sampling controls for generation.
+- **Built-in benchmarking**: a profiling suite covers throughput under concurrent load, latency sweeps across batch sizes, sequence lengths, and 4 backends (Torch FP32, ORT FP32, ORT INT8, ORT INT8 + Triton), a roofline analysis separating memory-bound from compute-bound kernels, and an end-to-end RAG cost comparison between cloud-API and local inference, making each optimization measurable.
 
 ## Tech Stack
 
@@ -34,7 +34,7 @@ fast-inference serves embedding, reranking, and text-generation models behind a 
 
 ## Status
 
-Single-author engineering project, structured and documented like a production server. Targets NVIDIA CUDA GPUs and runs containerized or natively. Source code private/proprietary, review available on request.
+Prototype / portfolio engineering project, single-author, structured and documented like a production server. Targets NVIDIA CUDA GPUs and runs containerized or natively. Source code private, review available on request.
 
 ---
 
@@ -43,4 +43,4 @@ Single-author engineering project, structured and documented like a production s
 
 A small, IP-safe excerpt is in [`fast-inference/`](./fast-inference/): INT8 static quantization for ONNX transformers (a calibration reader, an op skip-list that keeps precision-sensitive layers in float, per-channel weight quantization, and FP32-versus-INT8 cosine validation), plus the serving-layer utilities: a dynamic request batcher, a pre-allocated GPU tensor pool, and a circuit-breaker health checker.
 
-_© 2026 Edoardo Caciolo, all rights reserved. Proprietary and not open source; source code is private and available for review on request._
+_© 2026 Edoardo Caciolo, all rights reserved. Source code is private and available for review on request._

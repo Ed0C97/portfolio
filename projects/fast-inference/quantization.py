@@ -7,10 +7,10 @@ with per-tensor static activation ranges baked in from calibration, and a
 validation pass that compares FP32 vs INT8 embeddings by cosine similarity.
 
 The ONNX Runtime quantization backend, the real export step, the curated
-calibration corpus (a sample of production traffic), the tuned acceptance
+calibration corpus (representative query data), the tuned acceptance
 thresholds, and the exact model names are stubbed. The static-activation
-calibration statistics are the proprietary half and are represented here by a
-small illustrative range collector rather than the production implementation.
+calibration statistics are the private half and are represented here by a
+small illustrative range collector rather than the real implementation.
 """
 
 from __future__ import annotations
@@ -33,8 +33,8 @@ OPS_TO_SKIP: frozenset[str] = frozenset(
     {"LayerNormalization", "Softmax", "Gelu", "Gather"}
 )
 
-# Placeholder calibration corpus. The real reader draws from a sample of the
-# production query distribution; representativeness is what makes static ranges
+# Placeholder calibration corpus. The real reader draws from a representative
+# query distribution; representativeness is what makes static ranges
 # match deployment. These generic strings only exercise the code path.
 DEFAULT_CALIBRATION_TEXTS: tuple[str, ...] = (
     "Machine learning is a subset of artificial intelligence.",
@@ -81,7 +81,7 @@ class CalibrationDataReader:
     def _tokenize(self, batch_texts: list[str]) -> dict[str, np.ndarray]:
         """Stub tokenizer: deterministic fixed-length int64 ids and mask.
 
-        The production path calls a real subword tokenizer with padding and
+        The full implementation calls a real subword tokenizer with padding and
         truncation to max_length. We only need arrays of the right dtype and
         shape for the quantizer, so a hash-based fill is enough.
         """
@@ -133,7 +133,7 @@ class ActivationRange:
     This is the static half of static quantization: the range is fixed here,
     at calibration time, so there is zero per-request range computation at
     serving time (the reason we prefer static over dynamic for a serving
-    workload with a predictable input distribution). The production collector,
+    workload with a predictable input distribution). The full collector,
     with its moving-average smoothing and outlier handling, is stubbed; this
     keeps a plain running min/max to show the structure.
     """
@@ -160,8 +160,8 @@ class QuantConfig:
     weight_symmetric: bool = True
     activation_symmetric: bool = False
     ops_to_skip: frozenset[str] = OPS_TO_SKIP
-    # Acceptance threshold on mean cosine similarity. The production value is
-    # tuned per model family; this placeholder is deliberately loose.
+    # Acceptance threshold on mean cosine similarity. The tuned value differs
+    # per model family; this placeholder is deliberately loose.
     cosine_threshold: float = 0.99
     excluded_nodes: list[str] = field(default_factory=list)
 
@@ -218,7 +218,7 @@ def quantize_model_int8(
     activation ranges from the reader, then hands everything to the ONNX Runtime
     static quantizer with per-channel symmetric weights and per-tensor
     asymmetric activations. That backend call, the tuned extra_options, and the
-    graph rewrite are the proprietary core and are stubbed here: this version
+    graph rewrite are the private core and are stubbed here: this version
     validates inputs, drives the calibration collector, and writes a placeholder
     artifact so the control flow is faithful without shipping the engine.
     """

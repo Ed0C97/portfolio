@@ -1,6 +1,6 @@
 # fast-inference: code samples
 
-Self-contained excerpts from the quantization, serving, and resilience layers of a self-hosted, OpenAI-compatible inference server. They show numerically-careful low-precision quantization, async/await fluency, GPU hot-path optimization, and failure-handling design without exposing any kernel internals or model logic.
+Self-contained excerpts from the quantization, serving, and resilience layers of a self-hosted, OpenAI-compatible inference server. They show numerically careful low-precision quantization, async/await fluency, GPU hot-path optimization, and failure-handling design without exposing any kernel internals or model logic.
 
 **Context:** see [../fast-inference.md](../fast-inference.md) for the full project overview.
 
@@ -18,6 +18,6 @@ Self-contained excerpts from the quantization, serving, and resilience layers of
 - The hand-written **Triton GPU kernels** (attention, normalization, activations), the performance-sensitive core, kept private.
 - The ONNX Runtime `quantize_static` backend and its tuned options (weight and activation symmetry, moving-average calibration), and the real static-activation calibration collector, are the engine and are replaced with a marked stub; `quantization.py` shows the pipeline structure (calibration reader, skip-list, per-channel weights, cosine validation), not the tuned compute path.
 - The **router** that composes these pieces (worker selection, request forwarding) and the FastAPI request/response surface.
-- All tuning constants shown here (batch size, wait window, weights, timeouts) are illustrative defaults, not tuned production values.
+- The batcher defaults shown (max batch size 32, 10 ms wait window) and the 2 s health-check interval match the project's documented defaults; the remaining constants (pool sizes, failure thresholds, timeouts) are illustrative, not tuned production values.
 
 _© 2026 Edoardo Caciolo, all rights reserved. Portfolio excerpt shared to demonstrate engineering; not licensed for reuse. Full source is private._
