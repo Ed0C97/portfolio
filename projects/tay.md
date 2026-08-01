@@ -8,6 +8,9 @@ Tay is a multi-platform Swift application spanning iPhone, iPad, Apple Vision Pr
 
 ## Highlights
 
+These describe the product as designed and built to date. The project is early-stage (see Status): several of these paths are implemented and demonstrable, others are in progress, and the page does not distinguish them capability by capability. Treat the list as scope, not as a shipped feature matrix.
+
+
 - **On-device visual recognition**: identifies artworks and monuments from a live camera feed entirely on-device, fusing the visual match with location context to produce fast, stable results without a network round-trip.
 - **Authenticated canvas experiences**: verifies that printed artwork is genuinely licensed before unlocking its AR content, so only authorized physical canvases activate the experience.
 - **Environment-reactive AR characters**: AR characters respond to ambient light, sound, motion, on-scene events, speech, and gestures, producing believable in-context behavior.
