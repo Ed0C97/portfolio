@@ -14,6 +14,23 @@ fast-inference serves embedding, reranking, and text-generation models behind a 
 - **High-throughput request handling**: asynchronous dynamic batching coalesces concurrent requests into efficient GPU batches, with error fan-out to every waiting caller and drain-on-stop; a thread-safe pre-allocated tensor pool backs the torch embedding path, padding requests up to fixed length buckets so the hot path allocates nothing and the framework's per-shape planning caches stay warm; the pooled and unpooled paths produce bit-identical embeddings.
 - **Distributed, fault-tolerant serving**: a health-aware load balancer routes traffic to the best-performing healthy worker and fails fast when capacity is unavailable, keeping the service responsive under partial outages.
 - **Multiple model classes**: wraps a BGE-m3 embedder, a BGE-reranker-v2-m3 cross-encoder, and a Qwen2.5-7B-Instruct generator with KV-cache behind one consistent interface, with streaming and standard sampling controls for generation.
+## Measured, with the machine attached
+
+Every number below comes from a committed result file that carries the hardware that produced it. The run is an Apple M3 Pro laptop on the small-model profile, which is not the target hardware: it is published in that form because a measurement without its machine is not a measurement, and the CUDA column is honestly empty until it is run.
+
+| Backend, batch 1, 64-token target | p50 | Samples/s |
+|---|---:|---:|
+| torch (Metal) | 6.14 ms | 162.3 |
+| ONNX Runtime INT8 (CPU) | 7.26 ms | 137.9 |
+| ONNX Runtime FP32 (CPU) | 8.66 ms | 114.5 |
+| ONNX Runtime INT8 (Neural Engine) | 10.25 ms | 97.3 |
+| ONNX Runtime FP32 (Neural Engine) | 19.58 ms | 50.7 |
+| ONNX Runtime INT8 + Triton | not measured: requires CUDA | |
+
+Two findings the table exists to expose. The Neural Engine accepts the quantized graph rather than silently handing it back to the CPU: INT8 runs at 10.25 ms against 19.58 ms for FP32 on the same provider. And torch on the GPU still wins at batch 1, because a 33M-parameter encoder is too small to repay the runtime's dispatch overhead, which is precisely the regime the roofline model predicts and the reason the quantization work targets larger models and batched traffic.
+
+Static quantization of the exported BGE-small graph: 127.4 MB to 66.4 MB, with 41 of 549 operators kept in FP32 because normalization, softmax and embedding gathers are precision-sensitive.
+
 - **Built-in benchmarking**: one command discovers the backends the current machine can execute, measures them with device synchronization before every timer stop (p50/p95/p99), and writes JSON plus a Markdown table carrying the full hardware description; backends the machine cannot run are reported with a reason and no numbers. Underneath it: throughput under concurrent load, latency sweeps across batch sizes and sequence lengths, a roofline analysis separating memory-bound from compute-bound kernels, and an end-to-end RAG cost comparison between cloud-API and local inference.
 
 ## Tech Stack
