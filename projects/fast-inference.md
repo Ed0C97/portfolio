@@ -2,6 +2,14 @@
 
 > A self-hosted, OpenAI-compatible inference server for embedding, reranking, and generation models, built to keep retrieval-augmented generation (RAG) workloads fast and fully on-premise.
 
+## What this is, in plain terms
+
+A model on disk is a file of numbers. It does nothing on its own: something has to load those numbers into memory, accept requests, do the arithmetic and return an answer. That something is an inference server, and it sits between the weights and the application that wants a reply.
+
+Most teams rent one: they call a cloud API, pay per request, and their users' text leaves their network. This is the same component, running on your own hardware, speaking the protocol the cloud APIs already speak, so an existing client works by changing the address it points at. It answers three kinds of request: turn text into a vector so you can search by meaning, score documents against a question so the best ones come first, and write an answer token by token.
+
+Everything below, quantization, batching, custom kernels, benchmarks, exists to make those three faster and cheaper in memory, and to establish by measurement which changes actually did.
+
 ## Overview
 
 fast-inference serves embedding, reranking, and text-generation models behind a single HTTP API that mirrors the widely used OpenAI and Cohere request/response schemas, so existing RAG clients can point at it with no code changes. It targets teams that want to run RAG locally instead of depending on a cloud provider: by keeping models on the machine, it removes network round-trips and keeps processed data in-house. The project pairs the serving layer with low-level GPU optimization and a benchmark suite, demonstrating the full inference-serving stack end to end.
@@ -27,7 +35,11 @@ Every number below comes from a committed result file that carries the hardware 
 | ONNX Runtime FP32 (Neural Engine) | 19.58 ms | 50.7 |
 | ONNX Runtime INT8 + Triton | not measured: requires CUDA | |
 
-Two findings the table exists to expose. The Neural Engine accepts the quantized graph rather than silently handing it back to the CPU: INT8 runs at 10.25 ms against 19.58 ms for FP32 on the same provider. And torch on the GPU still wins at batch 1, because a 33M-parameter encoder is too small to repay the runtime's dispatch overhead, which is precisely the regime the roofline model predicts and the reason the quantization work targets larger models and batched traffic.
+Two things the table is there to establish, and one open question it raises.
+
+Quantization pays on the accelerator provider too: on the same registered CoreML session, INT8 runs at 10.25 ms against 19.58 ms for FP32. What these numbers do NOT establish is how much of the graph CoreML actually executed. ONNX Runtime reports the providers a session registered, not how it partitioned the nodes, and the quantized graph is in QOperator form, whose QLinear operators that provider is not expected to implement. The INT8 CPU row at 7.26 ms, faster than the CoreML row, is the reason to treat this as unresolved until a provider-level profile says otherwise.
+
+torch on the GPU is fastest in every measured shape here, not only at batch 1. The plain reading is that a 33M-parameter encoder is small enough that ONNX Runtime's per-call overhead dominates, but this repository has not isolated that cost, and the roofline model cannot arbitrate it: it accounts for arithmetic and bytes, and carries no term for a runtime's fixed cost per call.
 
 Static quantization of the exported BGE-small graph: 127.4 MB to 66.4 MB, with 41 of 549 operators kept in FP32 because normalization, softmax and embedding gathers are precision-sensitive.
 
