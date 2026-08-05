@@ -27,6 +27,8 @@ Report di due diligence, contratti, comfort letter e term sheet muovono soldi ve
 
 Sentinel è una piattaforma multi-tenant che analizza documenti legali e finanziari in italiano e inglese e restituisce rilievi strutturati con punteggi di rischio calibrati. Il documento attraversa una pipeline di agenti specializzati: alcuni estraggono clausole e rischi, altri verificano il lavoro dei primi. Gli agenti di verifica intervengono dopo l'estrazione: controllano che ogni rilievo sia ancorato al testo di partenza, ne ricalibrano la gravità e filtrano la copertura prima che qualcosa venga accettato; i risultati non ancorati vengono scartati. Ogni analisi termina con due artefatti: un report esportato in PDF, DOCX, PPTX o XLSX, e un Analysis Attestation Token firmato e cifrato, che si può recuperare, verificare e scaricare in seguito come prova di cosa è stato analizzato e con quale esito. Intorno al nucleo di analisi c'è un prodotto completo: autenticazione enterprise (SAML, OIDC, passkey, MFA), fatturazione con Stripe, interfaccia web, app desktop Electron e SDK Python.
 
+![sentinel detail placeholder 1](/images/projects/sentinel-2.svg)
+
 ## Come funziona
 
 Il monorepo contiene due applicazioni FastAPI: l'API di analisi e un piano di controllo separato per il provisioning, che gestisce ciclo di vita dei tenant, quote, migrazioni e amministrazione. Gli agenti sono privi di stato, con tutto lo stato mutabile in un AgentContext, quindi le esecuzioni procedono in parallelo sotto un semaforo configurabile; i moduli di analisi vengono compilati offline e caricati a runtime. Il recupero è ibrido: ricerca full-text, indice vettoriale e knowledge graph. Gli agenti di verifica girano dopo l'estrazione: controllano l'ancoraggio alle fonti, ricalibrano la gravità e presidiano la copertura prima che qualcosa venga accettato. La scelta meno ovvia è il serving deterministico su kernel batch-invariant per l'inferenza locale: senza batch invariance il risultato dipende da quali altri tenant capitano nello stesso batch, e l'unica alternativa per conservare la riproducibilità sarebbe stata servire le richieste una alla volta. Ho accettato un sovraccosto di latenza misurato di 1,6-2x per richiesta pur di mantenere il batching tra tenant e restare deterministico.
@@ -34,6 +36,8 @@ Il monorepo contiene due applicazioni FastAPI: l'API di analisi e un piano di co
 ## Per chi è
 
 Team bancari e di credit intelligence che hanno bisogno di un'analisi documentale difendibile: rilievi legati all'evidenza nel testo, lo stesso insieme di rilievi a ogni esecuzione sullo stesso documento, e un'attestazione crittografica per ogni analisi. Sentinel è in beta, con licenza proprietaria, in sviluppo attivo.
+
+![sentinel detail placeholder 2](/images/projects/sentinel-3.svg)
 
 ## Limiti e cosa rifarei
 

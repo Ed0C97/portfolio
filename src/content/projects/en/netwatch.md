@@ -27,6 +27,8 @@ When an attacker lands on a Linux host, everything that follows leaves traces at
 
 NETWATCH is an endpoint security monitor for Linux that watches activity from inside the kernel. Small programs written in C, loaded through eBPF, attach to kernel tracepoints and record what every process does: the system calls it makes, the connections it opens, the files it touches, the children it spawns. That event stream feeds a detection engine that checks deterministic rules first, each mapped to a MITRE ATT&CK technique with a severity, a confidence and a recommended response, and consults machine-learning models only afterwards. Related findings are grouped into incidents rather than raised one by one. Alerts go out in parallel over Syslog, webhook, file and WebSocket, formatted as CEF and LEEF so that SIEM platforms such as Splunk, ArcSight and IBM QRadar ingest them directly. A React dashboard shows live events, incidents and process trees, and the whole system ships as a Docker Compose deployment.
 
+![netwatch detail placeholder 1](/images/projects/netwatch-2.svg)
+
 ## How it works
 
 Four eBPF programs cover syscalls, network, filesystem and processes; they push events to user space through ring buffers, and 24 features are extracted per process every 60 seconds for the detection layer. The rule set holds 25 detections spanning the Cyber Kill Chain phases. The ML side complements it with an Isolation Forest that learns a behavioral baseline and an LSTM that looks for command-and-control beaconing patterns. The one non-obvious choice is the order: deterministic rules always run first and the ML path is a fallback, because a rule match is explainable and reproducible while an anomaly score is neither; with no models loaded the system still runs in rules-only mode. Downstream, a correlator clusters findings by temporal proximity, process lineage and kill-chain progression, alert channels are isolated with retry, backoff and duplicate suppression, and events persist to PostgreSQL with TimescaleDB hypertables through async SQLAlchemy and Alembic migrations, alongside bundled indicator-of-compromise feeds.
@@ -34,6 +36,8 @@ Four eBPF programs cover syscalls, network, filesystem and processes; they push 
 ## Who it's for
 
 There is no measured detection benchmark yet, so this section stays honest: NETWATCH is a beta-stage personal project, feature-complete across capture, detection, ML, alerting, API, dashboard, migrations and Docker/Compose deployment, not a published production release. It is aimed at security engineers and analysts who want host-based detection on Linux machines they control, and at teams that already run a SIEM and want kernel-level telemetry delivered in formats their tooling parses natively.
+
+![netwatch detail placeholder 2](/images/projects/netwatch-3.svg)
 
 ## Limits and what I'd redo
 

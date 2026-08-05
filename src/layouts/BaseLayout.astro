@@ -29,6 +29,10 @@ const { title, description = '', lang } = Astro.props;
       href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
       rel="stylesheet"
     />
+    <script is:inline>
+      // Gate for the reveal styles: without JS nothing is ever hidden.
+      document.documentElement.classList.add('js');
+    </script>
   </head>
   <body>
     <Header lang={lang} />
@@ -36,5 +40,55 @@ const { title, description = '', lang } = Astro.props;
       <slot />
     </main>
     <Footer lang={lang} />
+
+    <script>
+      // Shared scroll effects:
+      //  [data-reveal]  fades and lifts the element in when it enters the view
+      //  [data-countup] animates the first number in the text from 0 to its value
+      // Both run once per element and respect prefers-reduced-motion.
+      const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      const easeOut = (t: number) => 1 - Math.pow(1 - t, 3);
+
+      function animateCount(el: HTMLElement) {
+        const original = el.textContent ?? '';
+        const m = original.match(/-?\d+(?:[.,]\d+)?/);
+        if (!m || m.index === undefined) return;
+        const numStr = m[0];
+        const prefix = original.slice(0, m.index);
+        const suffix = original.slice(m.index + numStr.length);
+        const sep = numStr.includes(',') ? ',' : '.';
+        const decimals = numStr.includes(sep) ? numStr.split(sep)[1].length : 0;
+        const target = parseFloat(numStr.replace(',', '.'));
+        const duration = 900;
+        let start: number | null = null;
+
+        const step = (ts: number) => {
+          if (start === null) start = ts;
+          const p = Math.min((ts - start) / duration, 1);
+          const value = target * easeOut(p);
+          el.textContent = prefix + value.toFixed(decimals).replace('.', sep) + suffix;
+          if (p < 1) requestAnimationFrame(step);
+          else el.textContent = original;
+        };
+        requestAnimationFrame(step);
+      }
+
+      const io = new IntersectionObserver(
+        (entries) => {
+          for (const entry of entries) {
+            if (!entry.isIntersecting) continue;
+            const el = entry.target as HTMLElement;
+            io.unobserve(el);
+            el.classList.add('revealed');
+            if (el.hasAttribute('data-countup') && !reduced) animateCount(el);
+          }
+        },
+        { threshold: 0.35 }
+      );
+
+      document
+        .querySelectorAll<HTMLElement>('[data-reveal], [data-countup]')
+        .forEach((el) => io.observe(el));
+    </script>
   </body>
 </html>

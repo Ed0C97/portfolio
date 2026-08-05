@@ -55,8 +55,8 @@ const next = siblings.length > 1 ? siblings[(idx + 1) % siblings.length] : undef
         <dl class="fact-metrics">
           {
             d.metrics.map((m) => (
-              <div class="fact">
-                <dd>{m.value}</dd>
+              <div class="fact" data-reveal>
+                <dd data-countup>{m.value}</dd>
                 <dt class="muted">{m.label}</dt>
               </div>
             ))

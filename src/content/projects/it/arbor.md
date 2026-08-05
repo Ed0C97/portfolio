@@ -27,6 +27,8 @@ Le informazioni sulle entità del mondo reale (un locale, un marchio, un prodott
 
 ARBOR (Advanced Reasoning By Ontological Rules) è una piattaforma multi-tenant che raccoglie entità da fonti esterne, le arricchisce con una pipeline AI a più stadi e le espone alla ricerca semantica e all'interrogazione conversazionale. Gli scraper raccolgono materiale grezzo da Google Maps, Instagram e pagine web generiche; una pipeline di arricchimento lo analizza, gli assegna punteggi e lo valida; il risultato finisce in un grafo di conoscenza, in un indice vettoriale e in un registro event-sourced. Sopra c'è un flusso di ricerca agentico: la domanda viene classificata, instradata in parallelo verso la ricerca vettoriale e quella sui metadati, e assemblata in risposta da un passo curatore. La piattaforma è un monorepo con backend FastAPI, client web React, client mobile Expo e uno strato infrastrutturale su Kubernetes. Il comportamento di dominio (categorie di entità, dimensioni di punteggio, prompt, ontologie) sta nella configurazione YAML, non nel codice: un nuovo verticale si aggiunge modificando file di configurazione. I dati di ogni tenant vivono in uno schema di database dedicato.
 
+![arbor detail placeholder 1](/images/projects/arbor-2.svg)
+
 ## Come funziona
 
 La scelta meno ovvia è il modello di persistenza: la fonte di verità è un event store PostgreSQL append-only con concorrenza ottimistica, snapshot e proiezioni di lettura, e un outbox transazionale pubblica gli eventi di dominio su Kafka. Ho scelto l'event sourcing perché l'arricchimento riscrive le entità di continuo: con la storia completa degli eventi, una scrittura sbagliata generata dall'AI si può rintracciare e rigiocare, invece di sostituire in silenzio dati buoni. La ricerca gira su una macchina a stati LangGraph (router di intento, agenti vettoriale e sui metadati in parallelo, storico, curatore) compilata una volta all'avvio, con un checkpointer PostgreSQL che permette di riprendere una sessione dove si era fermata. L'arricchimento è un workflow Temporal in cinque stadi (raccolta, analisi, punteggio, validazione, persistenza) con retry e timeout per singola attività. Il recupero combina ricerca ibrida densa più sparsa con reranking BGE su Qdrant, e GraphRAG e HippoRAG sul grafo Neo4j. Quattro archivi si dividono il lavoro: PostgreSQL con PostGIS, Neo4j, Qdrant e Redis. Le decisioni di progetto sono registrate come ADR.
@@ -34,6 +36,8 @@ La scelta meno ovvia è il modello di persistenza: la fonte di verità è un eve
 ## Per chi è
 
 Per chi costruisce prodotti di scoperta contestuale e raccomandazione su dati di entità curati: app di scoperta locale, directory di marchi e locali, ricerca verticale. È un progetto privato attivo, non in produzione: il backend riporta la versione 1.1.0 e il codice, oltre 4 MB di Python, è coperto da suite di test unitari, di integrazione, end-to-end, di chaos, di carico (k6) e di red team (promptfoo).
+
+![arbor detail placeholder 2](/images/projects/arbor-3.svg)
 
 ## Limiti e cosa rifarei
 

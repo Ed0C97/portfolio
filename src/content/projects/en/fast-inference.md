@@ -32,6 +32,8 @@ fast-inference is a self-hosted inference server for embedding, reranking, and t
 
 The same code runs on an NVIDIA GPU, on Apple Silicon, and on plain CPU: a runtime layer resolves the device and the model profile in one place, and the server picks the best available backend at startup. Around the models sit the pieces a serving system needs: an asynchronous batcher that groups incoming requests, an INT8 quantization pipeline, a router that spreads load across workers, a benchmark orchestrator that measures every executable backend and commits the results with the hardware recorded, and an operator dashboard served at the root URL with a live view of the batching queue.
 
+![fast-inference detail placeholder 1](/images/projects/fast-inference-2.svg)
+
 ## How it works
 
 Requests land in a dynamic batcher that dispatches one batch at 32 requests or after 10 ms of waiting, whichever comes first; each request gets its own asyncio future, and a failure fans the exception out to every waiting caller. On the torch path, pooled, length-bucketed buffers are recycled across requests, with pooled and unpooled outputs verified bit-identical. Quantization is static INT8 through ONNX Runtime, calibrated on representative data, with precision-sensitive operators (LayerNorm, Softmax, GELU, embedding gathers) deliberately kept in float. The distributed layer scores workers by latency and queue depth (weighted 0.7 and 0.3) behind a three-state circuit breaker with health checks every two seconds.
@@ -41,6 +43,8 @@ The non-obvious choice is the router: round-robin is a poor fit because request 
 ## Results
 
 Measured on an Apple M3 Pro with bge-small-en-v1.5 at batch size 1, over 10 timed iterations after warmup: switching from FP32 to INT8 on the same CoreML execution provider cut p50 latency from 19.58 ms to 10.25 ms. The INT8 graph is 47.9% smaller than its FP32 source (127.4 MB to 66.4 MB), with 41 of 549 operators kept in float to protect accuracy. These are laptop numbers on a small embedding model, not datacenter figures: the benchmark orchestrator commits every run as JSON and Markdown with the hardware attached, so each number carries its own context.
+
+![fast-inference detail placeholder 2](/images/projects/fast-inference-3.svg)
 
 ## Limits and what I'd redo
 

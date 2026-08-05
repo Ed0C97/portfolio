@@ -27,6 +27,8 @@ Mandare avanti una piccola rivista online significa fare parecchi lavori che con
 
 Porfirio Magazine è la piattaforma dietro una rivista vera, online su magazine.porfirioholding.com. È una single-page application React che parla con una API REST in Flask e un database PostgreSQL, il tutto in produzione su Render. La redazione scrive, programma e categorizza gli articoli in un editor rich-text; i lettori sfogliano in italiano o in inglese, commentano, salvano i preferiti e donano tramite Stripe. Due incombenze redazionali sono automatizzate. Gli articoli vengono tradotti tra italiano e inglese su richiesta da Google Gemini, e ogni traduzione resta in cache: il modello viene richiamato solo se l'articolo cambia davvero. Il carosello Instagram di un articolo lo genera il backend: Gemini scrive i testi delle slide entro limiti di caratteri per tipo di slide, le slide vengono impaginate come schede HTML, catturate come immagini e consegnate in uno ZIP pronto da pubblicare. Attorno ci sono gli account con accesso Google e verifica dell'email via OTP, i permessi per ruolo con una coda di moderazione, un pannello di analytics e un involucro Capacitor che impacchetta lo stesso frontend come app iOS.
 
+![porfirio-magazine detail placeholder 1](/images/projects/porfirio-magazine-2.svg)
+
 ## Come funziona
 
 Il backend è un'applicazione Flask montata da una factory, con più di 30 blueprint di rotte su circa 22 modelli SQLAlchemy; il frontend conta circa 178 componenti React su circa 27 pagine, tutte caricate in modo differito tranne la home per spezzare il bundle. La scelta meno ovvia è l'autenticazione: una richiesta può portare un cookie di sessione Flask-Login oppure un token JWT, risolti entrambi da un unico request_loader personalizzato, così la stessa API serve la SPA web e i client a token senza duplicare gli endpoint. La cache delle traduzioni è indicizzata su un hash SHA-256 del contenuto dell'articolo, e l'invalidazione diventa automatica: modifichi l'articolo, cambia l'hash. Le slide per Instagram sono screenshot di HTML impaginato, presi con Playwright headless invece di disegnare le immagini via codice, poi caricati su Cloudinary. I worker Celery su broker Redis gestiscono le email; Redis regge anche rate limiting e caching. Il manifesto render.yaml descrive tre servizi più il PostgreSQL gestito, con un cron settimanale che ripulisce i log.
@@ -34,6 +36,8 @@ Il backend è un'applicazione Flask montata da una factory, con più di 30 bluep
 ## Risultati
 
 La rivista è in produzione: pubblicata su Render con domini personalizzati e PostgreSQL gestito, e mantenuta attivamente. Le donazioni passano da Stripe, con un endpoint webhook lato server e feature flag per attivarle o disattivarle a seconda dell'ambiente. L'engagement viene misurato: le metriche per articolo e le statistiche sulle generazioni Instagram sono registrate, tracciate nel pannello con Recharts ed esportabili in CSV.
+
+![porfirio-magazine detail placeholder 2](/images/projects/porfirio-magazine-3.svg)
 
 ## Limiti e cosa rifarei
 

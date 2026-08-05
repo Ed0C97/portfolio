@@ -27,6 +27,8 @@ image: "/images/projects/clustermind.svg"
 
 ClusterMind is a command-line tool that turns a short description of a web, SaaS, or self-hosted LLM service (traffic, endpoints, latency targets, growth, compliance constraints) into a capacity plan and a total cost of ownership. It proposes per-tier instance counts, concrete AWS, GCP, or Azure instance types, storage and bandwidth figures, autoscaling policies, and unit economics down to cost per request and per million tokens. Everything runs over a single Git-versioned config file, so the work can stop and resume at any stage: an interview captures the inputs in plain language, a static scan of the codebase detects routes and concurrency in FastAPI, Flask, and Django projects, an optional benchmark stage generates and parses load tests for k6, wrk, locust, and vegeta, then the compute stage sizes the tiers and the report stage renders Markdown, HTML, JSON, PDF, or Quarto documents. There is an optional local-LLM layer, but it only rephrases questions and narrates results: it never produces a number.
 
+![clustermind detail placeholder 1](/images/projects/clustermind-2.svg)
+
 ## How it works
 
 The math lives in a pure layer with no clocks, randomness, or I/O: the same input file always yields byte-identical output, and every computed value is recorded as a FormulaRecord (name, expression, inputs, result, units) printed in the report, so anyone can re-derive it by hand. Tier sizing uses an M/M/c (Erlang-C) queueing model driven to a latency target; unstable configurations return infinity, so the sizing layer adds servers instead of crashing. Self-hosted LLM inference gets a first-order GPU roofline: weight memory, decode throughput bounded by memory bandwidth, and KV-cache-limited batch size, with a single efficiency factor (default 0.35) as the one knob a benchmark calibrates. A Monte Carlo pass with a fixed seed propagates input uncertainty into P10/P50/P90/P95 bands, ranks cost drivers with a tornado sensitivity analysis, and grades the estimate A to D from the width of the P10-P90 band. The non-obvious choice is making determinism the invariant: the auditability the tool sells would not survive a stochastic dependency anywhere in the pipeline.
@@ -34,6 +36,8 @@ The math lives in a pure layer with no clocks, randomness, or I/O: the same inpu
 ## Who it's for
 
 SREs, platform teams, and anyone who has to defend a sizing decision in front of the people who approve the budget. The status is a declared beta: a single-author project under the MIT license, with a pytest suite of around 20 test modules and CI across Python 3.11, 3.12, and 3.13.
+
+![clustermind detail placeholder 2](/images/projects/clustermind-3.svg)
 
 ## Limits and what I'd redo
 

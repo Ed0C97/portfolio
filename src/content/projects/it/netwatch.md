@@ -27,6 +27,8 @@ Quando un attaccante mette piede su una macchina Linux, tutto quello che fa da q
 
 NETWATCH è un monitor di sicurezza per endpoint Linux che osserva l'attività da dentro il kernel. Piccoli programmi in C, caricati tramite eBPF, si agganciano ai tracepoint del kernel e registrano cosa fa ogni processo: le chiamate di sistema, le connessioni che apre, i file che tocca, i figli che genera. Il flusso di eventi alimenta un motore di rilevazione che applica prima regole deterministiche, ognuna mappata su una tecnica MITRE ATT&CK con severità, confidenza e risposta consigliata, e solo dopo consulta i modelli di machine learning. Le rilevazioni collegate vengono raggruppate in incidenti invece di essere sollevate una per una. Gli avvisi partono in parallelo su Syslog, webhook, file e WebSocket, nei formati CEF e LEEF che piattaforme SIEM come Splunk, ArcSight e IBM QRadar leggono direttamente. Una dashboard React mostra in tempo reale eventi, incidenti e alberi dei processi, e tutto il sistema si distribuisce con Docker Compose.
 
+![netwatch detail placeholder 1](/images/projects/netwatch-2.svg)
+
 ## Come funziona
 
 Quattro programmi eBPF coprono syscall, rete, filesystem e processi; spingono gli eventi verso lo spazio utente attraverso ring buffer, e ogni 60 secondi vengono estratte 24 feature per processo per il livello di rilevazione. Il set di regole conta 25 rilevazioni distribuite sulle fasi della Cyber Kill Chain. La parte ML le affianca con un Isolation Forest che apprende una baseline comportamentale e una LSTM che cerca i pattern di beaconing verso server di comando e controllo. La scelta non ovvia è l'ordine: le regole deterministiche girano sempre per prime e il percorso ML è una riserva, perché una regola che scatta è spiegabile e riproducibile mentre un punteggio di anomalia non lo è; senza modelli caricati il sistema funziona comunque in modalità solo regole. A valle, un correlatore raggruppa le rilevazioni per prossimità temporale, discendenza dei processi e progressione lungo la kill chain; i canali di avviso sono isolati, con retry, backoff e soppressione dei duplicati; gli eventi persistono su PostgreSQL con hypertable TimescaleDB tramite SQLAlchemy asincrono e migrazioni Alembic, insieme a feed di indicatori di compromissione inclusi.
@@ -34,6 +36,8 @@ Quattro programmi eBPF coprono syscall, rete, filesystem e processi; spingono gl
 ## Per chi è
 
 Non c'è ancora un benchmark di rilevazione misurato, quindi questa sezione resta onesta: NETWATCH è un progetto personale in beta, completo nelle funzioni su cattura, rilevazione, ML, avvisi, API, dashboard, migrazioni e distribuzione Docker/Compose, ma non una release di produzione pubblicata. Si rivolge a ingegneri e analisti di sicurezza che vogliono rilevazione host-based su macchine Linux che controllano, e a team che hanno già un SIEM e vogliono telemetria a livello kernel nei formati che i loro strumenti leggono nativamente.
+
+![netwatch detail placeholder 2](/images/projects/netwatch-3.svg)
 
 ## Limiti e cosa rifarei
 

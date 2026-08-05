@@ -1,32 +1,53 @@
 ---
 // Small inline SVG icon set. Never use ASCII arrows in the UI: always this
 // component, with the direction class so hover effects can target it.
+// New icons: draw them stroke-based (fill none, round caps) or paste the
+// inner markup from a stroke set like Lucide (lucide.dev) or Tabler
+// (tabler.io/icons), adjusting `viewBox` in the map below.
 interface Props {
-  name: 'arrow-right' | 'arrow-up-right' | 'arrow-left';
+  name: 'arrow-right' | 'arrow-up-right' | 'arrow-left' | 'rabbit';
   size?: number;
   class?: string;
 }
 
-const paths: Record<Props['name'], string> = {
-  'arrow-right': 'M2.5 8h11M9.5 4l4 4-4 4',
-  'arrow-up-right': 'M4.5 11.5l7-7M5.5 4.5h6v6',
-  'arrow-left': 'M13.5 8h-11M6.5 4l-4 4 4 4',
+const markup: Record<Props['name'], string> = {
+  'arrow-right': '<path d="M2.5 8h11M9.5 4l4 4-4 4"/>',
+  'arrow-up-right': '<path d="M4.5 11.5l7-7M5.5 4.5h6v6"/>',
+  'arrow-left': '<path d="M13.5 8h-11M6.5 4l-4 4 4 4"/>',
+  // Lucide "rabbit" (lucide.dev, ISC license)
+  rabbit: [
+    '<path d="M13 16a3 3 0 0 1 2.24 5"/>',
+    '<path d="M18 12h.01"/>',
+    '<path d="M18 21h-8a4 4 0 0 1-4-4 7 7 0 0 1 7-7h.2L9.6 6.4a1 1 0 1 1 2.8-2.8L15.8 7h.2c3.3 0 6 2.7 6 6v1a2 2 0 0 1-2 2h-1a3 3 0 0 0-3 3"/>',
+    '<path d="M20 8.54V4a2 2 0 1 0-4 0v3"/>',
+    '<path d="M7.612 12.524a3 3 0 1 0-1.6 4.3"/>',
+  ].join(''),
+};
+
+const viewBoxes: Partial<Record<Props['name'], string>> = {
+  rabbit: '0 0 24 24',
+};
+
+const strokeWidths: Partial<Record<Props['name'], number>> = {
+  rabbit: 2,
 };
 
 const { name, size = 16, class: cls } = Astro.props;
+const viewBox = viewBoxes[name] ?? '0 0 16 16';
+const strokeWidth = strokeWidths[name] ?? 1.6;
 ---
 
 <svg
   class:list={['icon', `icon--${name}`, cls]}
   width={size}
   height={size}
-  viewBox="0 0 16 16"
+  viewBox={viewBox}
   fill="none"
   stroke="currentColor"
-  stroke-width="1.6"
+  stroke-width={strokeWidth}
   stroke-linecap="round"
   stroke-linejoin="round"
   aria-hidden="true"
 >
-  <path d={paths[name]}></path>
+  <Fragment set:html={markup[name]} />
 </svg>

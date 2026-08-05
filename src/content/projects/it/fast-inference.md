@@ -32,6 +32,8 @@ fast-inference è un server di inferenza self-hosted per modelli di embedding, r
 
 Lo stesso codice gira su GPU NVIDIA, su Apple Silicon e su CPU: un livello di runtime risolve dispositivo e profilo del modello in un punto solo, e all'avvio il server sceglie il backend migliore tra quelli disponibili. Intorno ai modelli c'è quello che serve a un sistema di serving: un batcher asincrono che raggruppa le richieste in arrivo, una pipeline di quantizzazione INT8, un router che distribuisce il carico tra i worker, un orchestratore di benchmark che misura ogni backend eseguibile e registra i risultati insieme all'hardware, e una dashboard operativa, servita alla radice del server, con la coda di batching visualizzata in tempo reale.
 
+![fast-inference detail placeholder 1](/images/projects/fast-inference-2.svg)
+
 ## Come funziona
 
 Le richieste entrano in un batcher dinamico che spedisce un batch al raggiungimento di 32 richieste o dopo 10 ms di attesa; ogni richiesta ha il suo future asyncio e un errore viene propagato a tutti i chiamanti in attesa. Sul percorso torch, buffer pre-allocati e suddivisi per lunghezza vengono riciclati tra le richieste, con uscite verificate identiche bit per bit con e senza pool. La quantizzazione è INT8 statica via ONNX Runtime, calibrata su dati rappresentativi, con gli operatori sensibili alla precisione (LayerNorm, Softmax, GELU, gather degli embedding) lasciati di proposito in float. Il livello distribuito assegna a ogni worker un punteggio basato su latenza e profondità della coda (pesi 0,7 e 0,3), dietro un circuit breaker a tre stati con controlli di stato ogni due secondi.
@@ -41,6 +43,8 @@ La scelta meno ovvia è il router: il round-robin funziona male perché il tempo
 ## Risultati
 
 Misurato su un Apple M3 Pro con bge-small-en-v1.5, batch 1, 10 iterazioni cronometrate dopo il warmup: il passaggio da FP32 a INT8 sullo stesso provider CoreML ha portato la latenza p50 da 19,58 a 10,25 ms. Il grafo INT8 è più piccolo del 47,9% rispetto al sorgente FP32 (da 127,4 a 66,4 MB), con 41 operatori su 549 lasciati in float per proteggere la precisione. Sono numeri da laptop su un modello di embedding piccolo, non da datacenter: l'orchestratore salva ogni esecuzione in JSON e Markdown con l'hardware indicato, così ogni cifra porta con sé il proprio contesto.
+
+![fast-inference detail placeholder 2](/images/projects/fast-inference-3.svg)
 
 ## Limiti e cosa rifarei
 

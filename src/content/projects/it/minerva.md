@@ -27,6 +27,8 @@ Le informazioni pubbliche sulle minacce informatiche abbondano, ma allo stato gr
 
 MINERVA automatizza da capo a fondo quel ciclo di raccolta e correlazione. Interroga cinque sorgenti pubbliche (Shodan, OTX, CVE/NVD, DNS, WHOIS), riconosce quando sorgenti diverse stanno descrivendo lo stesso artefatto reale e fonde tutto in un unico grafo di conoscenza: indirizzi IP, domini, organizzazioni, vulnerabilità, tecniche, attori e campagne. Sopra il grafo c'è un'interfaccia in linguaggio naturale: l'analista fa una domanda e riceve una risposta in prosa, ancorata al grafo e non alla fantasia di un modello. I risultati escono dal sistema come bundle STIX 2.1, il formato standard di scambio per la threat intelligence, oppure come report PDF, Markdown e JSON. Il tutto è pensato API-first: gira in autonomia con Docker ed espone una API REST con autenticazione e controllo degli accessi per ruolo, così un'altra piattaforma può usarlo come servizio di threat intelligence invece che come ennesimo strumento da presidiare.
 
+![minerva detail placeholder 1](/images/projects/minerva-2.svg)
+
 ## Come funziona
 
 Cinque collector asincroni interrogano le API delle sorgenti, ciascuno con il proprio rate limiting e progettato per degradare senza rompersi: se manca una chiave o una sorgente è giù, l'esecuzione produce comunque un grafo con quello che resta. Una pipeline LangGraph orchestra raccolta, correlazione e arricchimento, poi scrive in Neo4j nodi e relazioni tipizzate (ATTRIBUTED_TO, USES_TTP, EXPLOITS_CVE). Le tecniche vengono validate contro MITRE ATT&CK con un punteggio di confidenza, e un motore di attribuzione confronta un'entità con 20 profili APT documentati, restituendo per ogni candidato le evidenze, non solo un nome. Le domande in linguaggio naturale diventano query sul grafo tramite un modello di ragionamento Cohere ancorato allo schema. La scelta meno ovvia sta qui: il motore di query è in sola lettura per costruzione, con un passo di validazione prima dell'esecuzione, perché lasciare che un modello linguistico scriva query arbitrarie su un archivio di intelligence è il modo migliore per corromperlo. La raccolta gira come job asincroni (202 Accepted, avanzamento via SSE), con JWT, RBAC e audit log in sola aggiunta.
@@ -34,6 +36,8 @@ Cinque collector asincroni interrogano le API delle sorgenti, ciascuno con il pr
 ## Per chi è
 
 MINERVA si rivolge agli analisti di cyber threat intelligence e, tramite la API REST, alle piattaforme in cui lavorano: è fatto per essere integrato come servizio, non adottato come ennesima dashboard. Il progetto è in beta alla versione 1.0.0, completo nelle funzionalità, con un deployment Docker Compose, ma resta un progetto personale.
+
+![minerva detail placeholder 2](/images/projects/minerva-3.svg)
 
 ## Limiti e cosa rifarei
 

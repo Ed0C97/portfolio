@@ -27,6 +27,8 @@ Everything about a vehicle lives on paper. The maintenance history sits in a dra
 
 BOT Garage is a web application that runs entirely on my own machine. One local database holds, per vehicle, a maintenance catalogue, service records that group completed work, a parts and consumables inventory with reorder thresholds, an administrative deadline tracker and an expense ledger. A new vehicle is added by importing its registration PDF: the OCR extracts plate, VIN, make, model, registration year, emissions class and engine displacement, each with a confidence score. A workshop invoice imports the same way, header plus line items, and becomes completed maintenance items grouped into a service record. From that single database the app generates a multi-sheet Excel workbook with live formulas, ODS and ODT documents, JSON and CSV exports, and three PDF reports written for different readers: the owner, the mechanic, and a prospective buyer, whose dossier omits personal data. A local assistant called Walter, running on Ollama, acts on the database through tool calling, and WhatsApp notifications for deadlines and reorders go through a self-hosted gateway with per-event deduplication.
 
+![bot-garage detail placeholder 1](/images/projects/bot-garage-2.svg)
+
 ## How it works
 
 A FastAPI backend serves a JSON API and a static HTML/CSS/JavaScript frontend; the data layer is a relational schema with foreign keys, keyed by vehicle, including an append-only event log. Storage is SQLite by default and switches to a remote Postgres (Neon) via environment variable; with a key set, sensitive fields (registration, VIN, plate, owner) are encrypted with Fernet before leaving the process. OCR uses the vendored ocr-toolkit and the dots.mocr vision-language model, about 6 GB, running on Apple Silicon through Metal Performance Shaders, with a patch that makes flash_attn optional and falls back to scaled dot-product attention. The non-obvious choice is the honesty-of-data rule: the model's transcription is ephemeral, only structured fields are stored, and any field read with low confidence stays empty or flagged and requires manual confirmation before saving. Nothing enters the record without a human deciding it is true. An optional Electron shell wraps the app for desktop use.
@@ -34,6 +36,8 @@ A FastAPI backend serves a JSON API and a static HTML/CSS/JavaScript frontend; t
 ## Who it's for
 
 Written for one user: me. It is a working personal application, actively developed and oriented to a single owner's setup, with seed data built around a specific motorcycle, a Triumph Bonneville T120. The schema is keyed per vehicle and supports several, so it grows with the garage. The application itself is proprietary; the vendored ocr-toolkit inside it is MIT.
+
+![bot-garage detail placeholder 2](/images/projects/bot-garage-3.svg)
 
 ## Limits and what I'd redo
 

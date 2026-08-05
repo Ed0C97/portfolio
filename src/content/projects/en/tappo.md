@@ -28,6 +28,8 @@ Counting something over time sounds like the simplest tracking problem there is,
 
 Tappo is a native iOS app in which each project is a counter with an optional target, an optional deadline, and a full history of timestamped entries. Every increment and decrement is logged, so the app can show daily totals, the current streak, an activity heatmap and the average entries per day. A project can be split into independent sub-counters, given milestones that are checked automatically as the count crosses them, and organized with search, categories, favorites and archiving. A 12-badge achievement system unlocks on count, streak, time-of-day and project-count conditions. The same data lives outside the app: a Home Screen widget shows count, streak, progress and days remaining; Live Activities put the counter on the Lock Screen and in the Dynamic Island; App Intents expose projects to Shortcuts and interactive widgets. There are per-project daily reminders, export to CSV, a summary report and a snapshot card image. The interface adapts between tabs on iPhone and a split view on iPad, in English and Italian. Everything stays on the device: iCloud sync is deliberately disabled.
 
+![tappo detail placeholder 1](/images/projects/tappo-2.svg)
+
 ## How it works
 
 The app is MVVM on SwiftUI and SwiftData. Four @Model types (Project, CounterEntry, Milestone, SubCounter) are linked by cascade-delete relationships; a single @Observable, @MainActor view model owns selection and filter state, performs every mutation against the model context, and then triggers the side effects: haptics, milestone checks, Live Activity updates. The non-obvious choice is where the database lives. The SwiftData store is a SQLite file inside a shared App Group container, with CloudKit explicitly set to none. That one decision does two jobs at once: it guarantees the data never leaves the device, and it lets the widget extension open the very same store instead of talking to the app through a serialized copy. The widget's TimelineProvider fetches the most recently updated non-archived project and refreshes roughly every 30 minutes, reading theme and appearance settings from a shared UserDefaults suite. Export goes through ImageRenderer for the snapshot card, with PDFKit included for PDF output. The deployment target is iOS 26.0.
@@ -35,6 +37,8 @@ The app is MVVM on SwiftUI and SwiftData. Four @Model types (Project, CounterEnt
 ## Who it's for
 
 Tappo is a prototype at version 1.0, a single-developer app under active development. It is for anyone who wants to count something toward a goal with a real history behind the number, without an account and without the data leaving the phone. It is also the project where I deliberately worked across the modern iOS system surface end to end: SwiftData, WidgetKit, App Intents, ActivityKit, and full localization in English and Italian, 151 strings.
+
+![tappo detail placeholder 2](/images/projects/tappo-3.svg)
 
 ## Limits and what I'd redo
 

@@ -27,6 +27,8 @@ When software screens a job application, the output is usually a number with no 
 
 Alatar takes a CV and a job description and returns a match that both sides can inspect. It parses the two documents, extracts the candidate's profile and the role's requirements, and produces an overall fit score, a per-category breakdown, a list of gaps, and an analysis of how the CV overlaps with the keywords an applicant tracking system would search for. Every requirement in the result carries a verdict (pass, review, or redflag) and an evidence item with citations pointing to the exact passages in both documents that justify it, so the score can be checked rather than trusted. The platform serves two audiences in one system: candidates tuning a CV against a specific role, and recruiters who need a screen they can explain. Compliance sits inside the pipeline rather than bolted on: the evidence trail maps to the EU AI Act's employment obligations, and GDPR erasure, export, and rectification endpoints exist alongside a data-protection impact assessment module.
 
+![alatar detail placeholder 1](/images/projects/alatar-2.svg)
+
 ## How it works
 
 The match engine has three layers, ordered by cost. A deterministic layer normalizes skills, resolves aliases, and fuzzy-matches everything it can at zero LLM cost. Whatever remains ambiguous goes to a single batched LLM pass that classifies each requirement into one of six tiers, from exact match to missing. A scoring layer then computes a category-weighted aggregate with tier multipliers and ATS keyword overlap. The non-obvious choice is that ordering: deterministic first, LLM second, one batched call, which bounds the cost per match instead of letting it grow with the number of requirements. Around the engine sits a monorepo: a FastAPI backend with roughly 25 domain engines (CV rewriting, recruiter simulation across HR, technical, and hiring-manager personas, ATS adapters, skill ontologies), a Next.js 16 client fed by server-sent events, multi-tenant isolation through PostgreSQL Row-Level Security, seven sibling toolkits pinned in lockstep CalVer, and a CI eval-gate with adversarial red-team tests.
@@ -34,6 +36,8 @@ The match engine has three layers, ordered by cost. A deterministic layer normal
 ## Who it's for
 
 Nothing has been measured on real users yet, so there are no performance claims to make. Alatar is aimed at candidates who want to know, requirement by requirement, where their CV stands against a role, and at recruiters who need to defend every verdict with citations into both documents.
+
+![alatar detail placeholder 2](/images/projects/alatar-3.svg)
 
 ## Limits and what I'd redo
 

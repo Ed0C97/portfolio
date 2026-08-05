@@ -27,6 +27,8 @@ Public information about cyber threats is abundant and almost unusable in its ra
 
 MINERVA automates that collection and correlation cycle end to end. It pulls data from five public sources (Shodan, OTX, CVE/NVD, DNS, WHOIS), recognises when different sources are describing the same real-world artifact, and merges everything into a single knowledge graph of IP addresses, domains, organisations, vulnerabilities, techniques, threat actors and campaigns. On top of that graph sits a plain-language interface: an analyst asks a question in English and gets an answer in prose, backed by the graph rather than by a model's imagination. Findings can leave the system as STIX 2.1 bundles, the standard exchange format for threat intelligence, or as PDF, Markdown and JSON reports. The whole thing is API-first: it runs standalone with Docker and exposes a REST API with authentication and role-based access control, so another platform can use it as a threat-intelligence service rather than a tool someone has to sit in front of.
 
+![minerva detail placeholder 1](/images/projects/minerva-2.svg)
+
 ## How it works
 
 Five asynchronous collectors fetch from the source APIs, each rate-limited and built to fail soft: when a key is missing or a source is down, the run still yields a graph from what remains. A LangGraph pipeline orchestrates collection, correlation and enrichment, then writes typed nodes and relationships (ATTRIBUTED_TO, USES_TTP, EXPLOITS_CVE) into Neo4j. Techniques are validated against MITRE ATT&CK and scored for confidence, and an attribution engine ranks an entity's overlap with 20 documented APT profiles, returning the evidence behind each candidate rather than a bare name. Natural-language questions are translated into graph queries by a Cohere reasoning model grounded in the graph schema. The non-obvious choice sits here: the query engine is read-only by construction, with a validation step before execution, because letting a language model write arbitrary queries against an intelligence store is how you corrupt it. Collection runs as async jobs (202 Accepted, progress over SSE), with JWT, RBAC and append-only audit logging.
@@ -34,6 +36,8 @@ Five asynchronous collectors fetch from the source APIs, each rate-limited and b
 ## Who it's for
 
 MINERVA targets cyber threat intelligence analysts and, through its REST API, the platforms they work in: it is designed to be embedded as a service, not adopted as yet another dashboard. The project is in beta at version 1.0.0, feature-complete, with a Docker Compose deployment, but it remains a personal project.
+
+![minerva detail placeholder 2](/images/projects/minerva-3.svg)
 
 ## Limits and what I'd redo
 

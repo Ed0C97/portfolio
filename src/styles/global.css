@@ -367,11 +367,39 @@ td {
   object-fit: cover;
 }
 
+/* --- Scroll reveal (gated on html.js so nothing hides without JS) ---------- */
+
+html.js [data-reveal] {
+  opacity: 0;
+  transform: translateY(12px);
+  transition: opacity 0.55s var(--ease-hero), transform 0.55s var(--ease-hero);
+}
+
+html.js [data-reveal].revealed {
+  opacity: 1;
+  transform: none;
+}
+
+/* --- In-article images on project pages ------------------------------------ */
+
+.prose img {
+  width: 100%;
+  height: auto;
+  margin-top: 32px;
+  border: 1px solid var(--border-ink);
+  border-radius: var(--radius-card-sm);
+}
+
 /* --- Motion ---------------------------------------------------------------- */
 
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
+  }
+
+  html.js [data-reveal] {
+    opacity: 1;
+    transform: none;
   }
 
   *,

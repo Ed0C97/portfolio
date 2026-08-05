@@ -27,6 +27,8 @@ An Instagram profile for a business or creator account is judged as a grid befor
 
 Anacleto is a platform that takes a batch of images and runs the pipeline from analysis to publication. Vision models extract color, texture, detected objects and aesthetic signals from each image. A search engine then looks for the ordering that scores highest as a grid, a caption generator writes context-aware captions and hashtags from the analysis results, and the ordered posts go into a queue. A scheduler publishes each one at its configured slot through the official Meta Graph API. All of this is exposed as a FastAPI service with registered accounts, email verification and API keys, and there is a desktop client, built with Dear PyGui and packaged for macOS and Windows, for people who prefer buttons to endpoints. One design decision runs through the whole system: the server never stores a user's Instagram, Cloudinary or Gemini secrets. Credentials travel in request headers and are used statelessly, so no store of account secrets ever sits server-side.
 
+![anacleto-instagram detail placeholder 1](/images/projects/anacleto-instagram-2.svg)
+
 ## How it works
 
 Three components cooperate: a FastAPI API layer, an analysis engine, and a standalone scheduler. The engine's orchestrator wires together feature extractors (coordinating Vertex AI, Replicate and Gemini vision calls), optimizers and evaluators, all configured through dataclasses with environment loaders, so algorithm and model choices are swappable without code changes. The interesting seam is the optimizer: three interchangeable strategies, Greedy, Beam Search and Monte Carlo Tree Search, search over a default 3x3 nine-image grid, and the MCTS variant uses UCB selection, candidate pre-filtering and greedy rollouts. What makes the search work is the evaluator: candidate grids are rendered and scored on six weighted criteria (color harmony, composition, visual flow, balance, theme consistency, interest), which turns a subjective judgement into a reward function all three optimizers share. The scheduler reads the queue with APScheduler and publishes at per-weekday slots, three posts per day by default in Europe/Rome, with a dry-run mode; publishing goes through Graph API v21.0 with retry logic and covers images, videos, carousels, stories and reels.
@@ -34,6 +36,8 @@ Three components cooperate: a FastAPI API layer, an analysis engine, and a stand
 ## Who it's for
 
 Anacleto automates the content pipeline for Instagram Business and Creator accounts. It suits people who want grid curation and scheduled publishing without handing standing credentials to a third-party server, since secrets stay per-request. On the service side there is registration with OTP email verification (via Resend), API keys with optional expiry and per-IP rate limiting; the desktop client covers account management, credentials, health and stats for users who never touch the API directly.
+
+![anacleto-instagram detail placeholder 2](/images/projects/anacleto-instagram-3.svg)
 
 ## Limits and what I'd redo
 

@@ -21,7 +21,9 @@ const home = localePath(lang, '/');
 
 <header class="site-header">
   <div class="container header-row">
-    <a class="logo mono" href={home} aria-label="Edoardo Caciolo, home">EC·</a>
+    <a class="logo" href={home} aria-label="Edoardo Caciolo, home">
+      <span class="avatar mono" aria-hidden="true">EC</span>
+    </a>
 
     <nav class="nav" aria-label="Main">
       <a href={localePath(lang, '/projects/')}>{t('nav.projects')}</a>
@@ -59,9 +61,27 @@ const home = localePath(lang, '/');
   }
 
   .logo {
-    font-size: 20px;
+    display: inline-flex;
+    align-items: center;
+  }
+
+  .avatar {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+    border-radius: var(--radius-pill);
+    background: var(--accent-blue);
+    color: var(--on-blue);
+    font-size: 14px;
     font-weight: 700;
     letter-spacing: -0.02em;
+    transition: transform var(--transition);
+  }
+
+  .logo:hover .avatar {
+    transform: translateY(-1px) scale(1.05);
   }
 
   .nav {

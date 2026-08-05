@@ -14,7 +14,7 @@ const d = project.data;
 const href = localePath(lang, `/projects/${d.slug}/`);
 ---
 
-<a class="project-card card" href={href}>
+<a class="project-card card" href={href} data-reveal>
   <div class="media-frame card-media">
     <img src={d.image} alt={`${d.title} preview`} loading="lazy" width="1200" height="675" />
   </div>
@@ -28,7 +28,7 @@ const href = localePath(lang, `/projects/${d.slug}/`);
       {
         d.metrics.map((m) => (
           <div class="metric">
-            <dd>{m.value}</dd>
+            <dd data-countup>{m.value}</dd>
             <dt class="muted">{m.label}</dt>
           </div>
         ))

@@ -28,6 +28,8 @@ Contare qualcosa nel tempo sembra il problema di tracciamento più banale che es
 
 Tappo è un'app nativa per iOS in cui ogni progetto è un contatore con un obiettivo facoltativo, una scadenza facoltativa e la cronologia completa delle voci con data e ora. Ogni incremento e decremento viene registrato: da lì escono totali giornalieri, serie di giorni attiva, heatmap dell'attività e media di voci al giorno. Un progetto si può dividere in sotto-contatori indipendenti, dotare di traguardi verificati in automatico quando il conteggio li supera, e organizzare con ricerca, categorie, preferiti e archiviazione. Un sistema di 12 badge si sblocca in base a conteggio, serie, ora del giorno e numero di progetti. Gli stessi dati vivono anche fuori dall'app: un widget in Home mostra conteggio, serie, avanzamento e giorni rimanenti; le Live Activities portano il contatore sulla schermata di blocco e nella Dynamic Island; le App Intents espongono i progetti a Comandi Rapidi e ai widget interattivi. Ci sono promemoria giornalieri per progetto, l'esportazione in CSV, un riepilogo e una card immagine. L'interfaccia si adatta tra tab su iPhone e vista divisa su iPad, in italiano e in inglese. Tutto resta sul dispositivo: la sincronizzazione iCloud è disattivata di proposito.
 
+![tappo detail placeholder 1](/images/projects/tappo-2.svg)
+
 ## Come funziona
 
 L'app è un MVVM su SwiftUI e SwiftData. Quattro tipi @Model (Project, CounterEntry, Milestone, SubCounter) sono legati da relazioni con cancellazione a cascata; un unico view model @Observable e @MainActor tiene lo stato di selezione e filtro, esegue ogni mutazione sul model context e innesca poi gli effetti collaterali: feedback aptico, verifica dei traguardi, aggiornamento della Live Activity. La scelta meno ovvia riguarda dove sta il database. Lo store SwiftData è un file SQLite dentro un container App Group condiviso, con CloudKit impostato esplicitamente a none. Quella singola decisione fa due lavori insieme: i dati non lasciano mai il dispositivo, e l'estensione widget apre lo stesso identico store invece di parlare con l'app attraverso una copia serializzata. Il TimelineProvider del widget carica il progetto non archiviato aggiornato più di recente e si aggiorna circa ogni 30 minuti. L'esportazione della card passa da ImageRenderer; PDFKit è incluso per l'output in PDF. Il target di deployment è iOS 26.0.
@@ -35,6 +37,8 @@ L'app è un MVVM su SwiftUI e SwiftData. Quattro tipi @Model (Project, CounterEn
 ## Per chi è
 
 Tappo è un prototipo alla versione 1.0, un'app di un singolo sviluppatore in sviluppo attivo. Serve a chi vuole contare qualcosa verso un obiettivo con una vera cronologia dietro al numero, senza account e senza che i dati escano dal telefono. Ed è anche il progetto in cui ho attraversato di proposito la superficie di sistema di iOS moderno: SwiftData, WidgetKit, App Intents, ActivityKit e la localizzazione completa in inglese e italiano, 151 stringhe.
+
+![tappo detail placeholder 2](/images/projects/tappo-3.svg)
 
 ## Limiti e cosa rifarei
 

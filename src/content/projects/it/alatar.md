@@ -27,6 +27,8 @@ Quando è un software a filtrare una candidatura, il risultato è quasi sempre u
 
 Alatar prende un CV e un annuncio di lavoro e restituisce un confronto che entrambe le parti possono ispezionare. Analizza i due documenti, ne estrae il profilo del candidato e i requisiti del ruolo, e produce un punteggio complessivo di compatibilità, la scomposizione per categoria, l'elenco delle lacune e l'analisi della sovrapposizione con le parole chiave che un sistema di tracciamento delle candidature (ATS) andrebbe a cercare. Ogni requisito arriva con un verdetto (pass, review o redflag) e un elemento di evidenza che cita i passaggi esatti di entrambi i documenti: il punteggio si può controllare, non solo credere sulla parola. La piattaforma serve due pubblici in un unico sistema: chi adatta il proprio CV a un ruolo preciso e chi seleziona e ha bisogno di uno screening spiegabile. La conformità sta dentro la pipeline, non aggiunta dopo: la catena di evidenze è mappata sugli obblighi dell'AI Act per l'ambito occupazionale, e accanto ci sono gli endpoint GDPR di cancellazione, esportazione e rettifica, più un modulo di valutazione d'impatto (DPIA).
 
+![alatar detail placeholder 1](/images/projects/alatar-2.svg)
+
 ## Come funziona
 
 Il motore di match ha tre livelli, ordinati per costo. Un livello deterministico normalizza le competenze, risolve gli alias e fa matching approssimato di tutto ciò che può, senza toccare l'LLM. Ciò che resta ambiguo passa a un'unica chiamata LLM in batch, che classifica ogni requisito in una di sei fasce, dalla corrispondenza esatta all'assenza. Un livello di punteggio calcola infine l'aggregato pesato per categoria, con moltiplicatori di fascia e sovrapposizione delle parole chiave ATS. La scelta meno ovvia è proprio quest'ordine: prima il deterministico, poi l'LLM, una sola chiamata in batch, così il costo per confronto resta limitato invece di crescere col numero dei requisiti. Attorno al motore c'è un monorepo: backend FastAPI con circa 25 motori di dominio (riscrittura del CV, simulazione del selezionatore nei panni di HR, tecnico e hiring manager, adattatori ATS, ontologie di competenze), client Next.js 16 alimentato via server-sent events, isolamento multi-tenant con la Row-Level Security di PostgreSQL, sette toolkit gemelli con versioni CalVer allineate, e un eval-gate in CI con test avversari di red team.
@@ -34,6 +36,8 @@ Il motore di match ha tre livelli, ordinati per costo. Un livello deterministico
 ## Per chi è
 
 Niente è ancora stato misurato su utenti reali, quindi niente numeri di prestazioni. Alatar è pensato per chi si candida e vuole sapere, requisito per requisito, dove il proprio CV regge e dove no, e per chi seleziona e deve poter difendere ogni verdetto con citazioni in entrambi i documenti.
+
+![alatar detail placeholder 2](/images/projects/alatar-3.svg)
 
 ## Limiti e cosa rifarei
 

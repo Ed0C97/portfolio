@@ -37,9 +37,9 @@ const heroStats = stats[lang];
     <dl class="hero-stats">
       {
         heroStats.map((s) => (
-          <div class="stat">
+          <div class="stat" data-reveal>
             <dt class="muted">{s.label}</dt>
-            <dd>{s.value}</dd>
+            <dd data-countup>{s.value}</dd>
           </div>
         ))
       }

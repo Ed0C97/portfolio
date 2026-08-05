@@ -27,6 +27,8 @@ Information about real-world entities (a venue, a brand, a product) is scattered
 
 ARBOR (Advanced Reasoning By Ontological Rules) is a multi-tenant platform that ingests entities from external sources, enriches them through a multi-stage AI pipeline, and exposes them for semantic discovery and conversational querying. Scrapers collect raw material from Google Maps, Instagram and generic web pages; an enrichment pipeline analyzes, scores and validates it; the result lands in a knowledge graph, a vector index and an event-sourced record. On top sits an agentic search flow: a query is classified, routed to parallel vector and metadata searches, and assembled into an answer by a curator step. The platform is a monorepo with a FastAPI backend, a React web client, an Expo mobile client and a Kubernetes-based infrastructure layer. Domain behaviour (entity categories, scoring dimensions, prompts, ontologies) lives in YAML configuration rather than code, so a new vertical can be added by editing config files. Each tenant's data lives in its own database schema.
 
+![arbor detail placeholder 1](/images/projects/arbor-2.svg)
+
 ## How it works
 
 The one non-obvious choice is the storage model: the source of truth is an append-only PostgreSQL event store with optimistic concurrency, snapshots and read-model projections, and a transactional outbox publishes domain events to Kafka. I chose event sourcing because enrichment rewrites entities constantly: with a full event history, a bad AI-generated write can be traced and replayed instead of silently replacing good data. Discovery runs on a LangGraph state machine (intent router, parallel vector and metadata agents, historian, curator) compiled once at startup, with a PostgreSQL checkpointer so a session can resume where it stopped. Enrichment is a five-stage Temporal workflow (collect, analyze, score, validate, persist) with per-activity retry and timeouts. Retrieval combines hybrid dense plus sparse vector search with BGE reranking over Qdrant, and GraphRAG and HippoRAG over the Neo4j graph. Four data stores share the work: PostgreSQL with PostGIS, Neo4j, Qdrant and Redis. Design decisions are recorded as ADRs.
@@ -34,6 +36,8 @@ The one non-obvious choice is the storage model: the source of truth is an appen
 ## Who it's for
 
 Teams building contextual discovery and recommendation products over curated entity data: local-discovery apps, brand and venue directories, vertical search. It is an active private project, not in production; the backend reports version 1.1.0, and the codebase, over 4 MB of Python, carries unit, integration, end-to-end, chaos, load (k6) and red-team (promptfoo) test suites.
+
+![arbor detail placeholder 2](/images/projects/arbor-3.svg)
 
 ## Limits and what I'd redo
 
