@@ -1,0 +1,217 @@
+---
+import Icon from './Icon.astro';
+import { useTranslations, localePath, type Lang } from '../i18n/ui';
+import { hero, identity, stats } from '../data/profile';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const t = useTranslations(lang);
+const roles = hero.roles[lang];
+const heroStats = stats[lang];
+---
+
+<section class="hero section">
+  <div class="container">
+    <p class="kicker">{t('hero.hi')}</p>
+    <h1 class="hero-name">Edoardo Caciolo</h1>
+
+    <p class="hero-role mono" aria-live="off">
+      <span id="typewriter" data-roles={JSON.stringify(roles)}>{roles[0]}</span><span
+        class="caret"
+        aria-hidden="true">▌</span
+      >
+    </p>
+
+    <p class="hero-tagline">{hero.tagline[lang]}</p>
+
+    <div class="hero-cta">
+      <a class="btn btn--lg" href={localePath(lang, '/projects/')}>{t('hero.viewProjects')}</a>
+      <a class="btn btn--ghost btn--lg" href={identity.github} target="_blank" rel="noopener noreferrer">
+        {t('hero.github')} <Icon name="arrow-up-right" size={15} />
+      </a>
+    </div>
+
+    <dl class="hero-stats">
+      {
+        heroStats.map((s) => (
+          <div class="stat">
+            <dt class="muted">{s.label}</dt>
+            <dd>{s.value}</dd>
+          </div>
+        ))
+      }
+    </dl>
+  </div>
+</section>
+
+<style>
+  .hero {
+    padding-top: 96px;
+  }
+
+  .hero-name {
+    font-size: clamp(40px, 7vw, 64px);
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    line-height: 1.05;
+    margin-top: 10px;
+  }
+
+  .hero-role {
+    margin-top: 14px;
+    font-size: clamp(17px, 2.6vw, 22px);
+    font-weight: 500;
+    min-height: 1.5em;
+  }
+
+  #typewriter {
+    background: var(--accent-yellow);
+    color: var(--grey-4);
+    padding: 2px 8px;
+    border-radius: 6px;
+  }
+
+  .caret {
+    margin-left: 4px;
+    color: var(--text-muted);
+    animation: blink 1s steps(1) infinite;
+  }
+
+  @keyframes blink {
+    50% {
+      opacity: 0;
+    }
+  }
+
+  .hero-tagline {
+    margin-top: 22px;
+    max-width: 560px;
+    font-size: clamp(16.5px, 2.2vw, 19px);
+    line-height: 1.6;
+    color: var(--text-muted);
+  }
+
+  .hero-cta {
+    margin-top: 32px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+  }
+
+  .hero-stats {
+    margin: 64px 0 0;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0;
+    border-top: 1px solid var(--border-ink);
+  }
+
+  .stat {
+    padding: 20px 18px 4px 0;
+  }
+
+  .stat + .stat {
+    padding-left: 18px;
+    border-left: 1px solid color-mix(in srgb, var(--border-soft) 30%, transparent);
+  }
+
+  .stat dd {
+    margin: 4px 0 0;
+    font-size: clamp(26px, 4vw, 36px);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }
+
+  .stat dt {
+    font-size: 13px;
+    line-height: 1.35;
+    min-height: 2.7em;
+  }
+
+  @media (max-width: 767px) {
+    .hero {
+      padding-top: 56px;
+    }
+
+    /* On small screens the stats become rows: big number left, label right.
+       No vertical separators, one hairline between rows. */
+    .hero-stats {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .stat,
+    .stat + .stat {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      padding: 14px 0;
+      border-left: none;
+      border-bottom: 1px solid color-mix(in srgb, var(--border-soft) 30%, transparent);
+    }
+
+    .stat:last-child {
+      border-bottom: none;
+    }
+
+    .stat dd {
+      order: -1;
+      min-width: 76px;
+      font-size: 28px;
+    }
+
+    .stat dt {
+      min-height: 0;
+      flex: 1;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .caret {
+      animation: none;
+    }
+  }
+</style>
+
+<script>
+  // Typewriter: type, hold, delete, next. Static first role when the user
+  // prefers reduced motion.
+  const el = document.getElementById('typewriter');
+  if (el) {
+    const roles: string[] = JSON.parse(el.dataset.roles ?? '[]');
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (!reduced && roles.length > 1) {
+      const TYPE_MS = 55;
+      const DELETE_MS = 28;
+      const HOLD_MS = 2100;
+      const GAP_MS = 350;
+      let i = 0;
+
+      const type = (text: string, pos: number, done: () => void) => {
+        el.textContent = text.slice(0, pos);
+        if (pos < text.length) setTimeout(() => type(text, pos + 1, done), TYPE_MS);
+        else setTimeout(done, HOLD_MS);
+      };
+
+      const erase = (done: () => void) => {
+        const current = el.textContent ?? '';
+        if (current.length > 0) {
+          el.textContent = current.slice(0, -1);
+          setTimeout(() => erase(done), DELETE_MS);
+        } else {
+          setTimeout(done, GAP_MS);
+        }
+      };
+
+      const loop = () => {
+        i = (i + 1) % roles.length;
+        type(roles[i], 0, () => erase(loop));
+      };
+
+      setTimeout(() => erase(loop), HOLD_MS);
+    }
+  }
+</script>

@@ -1,0 +1,53 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import ProjectCard from './ProjectCard.astro';
+import { useTranslations, type Lang } from '../i18n/ui';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const t = useTranslations(lang);
+
+const projects = (
+  await getCollection('projects', (e) => e.data.lang === lang && e.data.visible)
+).sort((a, b) => a.data.order - b.data.order);
+---
+
+<BaseLayout lang={lang} title={`${t('projects.title')} · Edoardo Caciolo`} description={t('projects.subtitle')}>
+  <section class="section">
+    <div class="container">
+      <p class="kicker">{t('projects.kicker')}</p>
+      <h1 class="section-title">{t('projects.title')}</h1>
+      <p class="muted subtitle">{t('projects.subtitle')}</p>
+
+      <div class="projects-grid">
+        {projects.map((p) => <ProjectCard project={p} lang={lang} />)}
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .subtitle {
+    margin-top: 14px;
+    max-width: 560px;
+    font-size: 16px;
+    line-height: 1.6;
+  }
+
+  .projects-grid {
+    margin-top: 44px;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 24px;
+  }
+
+  @media (max-width: 860px) {
+    .projects-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

@@ -1,0 +1,118 @@
+---
+import {
+  useTranslations,
+  toEnglishPath,
+  toItalianPath,
+  localePath,
+  type Lang,
+} from '../i18n/ui';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const t = useTranslations(lang);
+const path = Astro.url.pathname;
+const enHref = toEnglishPath(path);
+const itHref = toItalianPath(path);
+const home = localePath(lang, '/');
+---
+
+<header class="site-header">
+  <div class="container header-row">
+    <a class="logo mono" href={home} aria-label="Edoardo Caciolo, home">EC·</a>
+
+    <nav class="nav" aria-label="Main">
+      <a href={localePath(lang, '/projects/')}>{t('nav.projects')}</a>
+      <a href={home + '#about'}>{t('nav.about')}</a>
+      <a href={home + '#contact'}>{t('nav.contact')}</a>
+    </nav>
+
+    <div class="header-tools">
+      <div class="lang-switch mono" role="group" aria-label="Language">
+        <a href={enHref} class:list={[{ active: lang === 'en' }]} aria-current={lang === 'en' ? 'true' : undefined}>EN</a>
+        <span aria-hidden="true">/</span>
+        <a href={itHref} class:list={[{ active: lang === 'it' }]} aria-current={lang === 'it' ? 'true' : undefined}>IT</a>
+      </div>
+    </div>
+  </div>
+</header>
+
+<style>
+  .site-header {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    height: var(--header-h);
+    background: color-mix(in srgb, var(--bg) 88%, transparent);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid color-mix(in srgb, var(--border-soft) 30%, transparent);
+  }
+
+  .header-row {
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+  }
+
+  .logo {
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }
+
+  .nav {
+    display: flex;
+    gap: 28px;
+    font-size: 14.5px;
+    font-weight: 600;
+  }
+
+  .nav a {
+    color: var(--text-muted);
+    transition: color var(--transition);
+  }
+
+  .nav a:hover {
+    color: var(--text);
+  }
+
+  .header-tools {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .lang-switch {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12.5px;
+    color: var(--text-muted);
+  }
+
+  .lang-switch a {
+    padding: 2px 4px;
+    border-radius: 6px;
+    transition: color var(--transition), background var(--transition);
+  }
+
+  .lang-switch a.active {
+    color: var(--grey-4);
+    background: var(--accent-yellow);
+    font-weight: 700;
+  }
+
+  .lang-switch a:not(.active):hover {
+    color: var(--text);
+  }
+
+  @media (max-width: 640px) {
+    .nav {
+      display: none;
+    }
+  }
+</style>

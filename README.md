@@ -61,3 +61,55 @@ The published excerpts are chosen to show concrete engineering, each tied to the
 ---
 
 _© 2026 Edoardo Caciolo, all rights reserved. Source code is private and available for review on request._
+
+# Edoardo Caciolo · Portfolio
+
+Personal portfolio site. Bilingual (EN default, IT under `/it/`), dark theme only, static build, zero client-side frameworks. Built with [Astro 5](https://astro.build). The design system (palette, radii, buttons, badges, cards) is ported from the Alatar project's `tokens.css`: 5 greys plus 3 accents, flat surfaces with 1px ink borders, yellow as the only action colour. UI arrows are always the inline SVG `Icon.astro` component (never text arrows), so hover motion stays consistent.
+
+## Commands
+
+```bash
+npm install        # once
+npm run dev        # http://localhost:4321
+npm run build      # static output in dist/
+npm run preview    # serve dist/ locally
+```
+
+## How content works
+
+Every project is a pair of markdown files in `src/content/projects/`:
+
+```
+sentinel.en.md
+sentinel.it.md
+```
+
+The frontmatter drives everything; the two switches you will actually touch:
+
+| Field      | Effect                                                        |
+| ---------- | ------------------------------------------------------------- |
+| `visible`  | `false` removes the project from the whole site               |
+| `featured` | `true` shows it on the home page grid (keep it to 6-8)        |
+| `order`    | Sort position everywhere (1 = first)                          |
+
+To add a project: copy an existing pair, change the frontmatter, write the five body sections (The problem / What I built / How it works / Results / Limits and what I'd redo). Both language files must exist.
+
+Facts policy: every number and status comes from the verified content library in the CV repository (`CV/cv_master/content/`). Never promote a status, never add unmeasured metrics. No em dash anywhere.
+
+## Images
+
+All project images are placeholders in `public/images/projects/<slug>.svg` (1200x675, 16:9). Replace each with a real screenshot or render at the same path, any format (`.png`, `.webp`, `.jpg`), then update the `image:` field in both language files of that project.
+
+The typewriter roles, hero stats, about, experience, skills and education all live in `src/data/profile.ts`. UI strings (nav, section titles, buttons) live in `src/i18n/ui.ts`.
+
+## Language
+
+EN at `/`, IT at `/it/`; the header toggle maps the current page to its twin. The site is dark-only: all colours live in `src/styles/tokens.css`, nothing is hardcoded in components.
+
+## Deploying later (GitHub Pages)
+
+The site is local-only for now. When you decide to publish:
+
+1. Set `site` in `astro.config.mjs` (e.g. `https://ed0c97.github.io`) and, if the repo is not `<user>.github.io`, also `base: '/<repo-name>'`.
+2. Push to GitHub and enable Pages with the official Astro GitHub Action (`withastro/action`).
+3. Custom domain: set `site` to the domain, add the `CNAME` file in `public/`.

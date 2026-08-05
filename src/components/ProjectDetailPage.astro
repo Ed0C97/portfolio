@@ -1,0 +1,215 @@
+---
+import { getCollection, render, type CollectionEntry } from 'astro:content';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Badge from './Badge.astro';
+import Icon from './Icon.astro';
+import { useTranslations, localePath, type Lang } from '../i18n/ui';
+
+interface Props {
+  entry: CollectionEntry<'projects'>;
+  lang: Lang;
+}
+
+const { entry, lang } = Astro.props;
+const t = useTranslations(lang);
+const d = entry.data;
+const { Content } = await render(entry);
+
+// Next project in display order, wrapping at the end.
+const siblings = (
+  await getCollection('projects', (e) => e.data.lang === lang && e.data.visible)
+).sort((a, b) => a.data.order - b.data.order);
+const idx = siblings.findIndex((e) => e.data.slug === d.slug);
+const next = siblings.length > 1 ? siblings[(idx + 1) % siblings.length] : undefined;
+---
+
+<BaseLayout lang={lang} title={`${d.title} · Edoardo Caciolo`} description={d.oneLiner}>
+  <article class="section">
+    <div class="container">
+      <a class="back mono muted" href={localePath(lang, '/projects/')}>
+        <Icon name="arrow-left" size={14} /> {t('project.back')}
+      </a>
+
+      <header class="project-head">
+        <p class="kicker">{d.category}{d.year && ` · ${d.year}`}</p>
+        <h1 class="project-title">{d.title}</h1>
+        <p class="project-oneliner muted">{d.oneLiner}</p>
+
+        <div class="project-meta">
+          <Badge label={d.status} tone={d.statusTone} />
+          {
+            d.repo && (
+              <a class="btn btn--ghost repo-btn" href={d.repo} target="_blank" rel="noopener noreferrer">
+                {t('project.repo')} <Icon name="arrow-up-right" size={14} />
+              </a>
+            )
+          }
+        </div>
+      </header>
+
+      <div class="media-frame project-hero">
+        <img src={d.image} alt={`${d.title} preview`} width="1200" height="675" />
+      </div>
+
+      <div class="project-facts">
+        <dl class="fact-metrics">
+          {
+            d.metrics.map((m) => (
+              <div class="fact">
+                <dd>{m.value}</dd>
+                <dt class="muted">{m.label}</dt>
+              </div>
+            ))
+          }
+        </dl>
+        <div class="fact-stack">
+          <p class="kicker">{t('project.stack')}</p>
+          <div class="stack-badges">
+            {d.stack.map((s) => <Badge label={s} tone="tech" />)}
+          </div>
+        </div>
+      </div>
+
+      <div class="prose">
+        <Content />
+      </div>
+
+      {
+        next && (
+          <a class="next-link" href={localePath(lang, `/projects/${next.data.slug}/`)}>
+            <span class="kicker">{t('project.next')}</span>
+            <span class="next-title">
+              {next.data.title}
+              <Icon name="arrow-right" size={22} />
+            </span>
+          </a>
+        )
+      }
+    </div>
+  </article>
+</BaseLayout>
+
+<style>
+  .back {
+    font-size: 13px;
+    transition: color var(--transition);
+  }
+
+  .back:hover {
+    color: var(--text);
+  }
+
+  .project-head {
+    margin-top: 28px;
+  }
+
+  .project-title {
+    margin-top: 10px;
+    font-size: clamp(30px, 5vw, 44px);
+    font-weight: 700;
+    letter-spacing: -0.025em;
+    line-height: 1.1;
+  }
+
+  .project-oneliner {
+    margin-top: 12px;
+    font-size: 17px;
+    line-height: 1.55;
+    max-width: 640px;
+  }
+
+  .project-meta {
+    margin-top: 20px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .repo-btn {
+    height: 38px;
+    padding: 0 18px;
+    font-size: 13.5px;
+  }
+
+  .project-hero {
+    margin-top: 36px;
+  }
+
+  .project-facts {
+    margin-top: 32px;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr);
+    gap: 32px;
+    padding-bottom: 32px;
+    border-bottom: 1px solid var(--border-ink);
+  }
+
+  .fact-metrics {
+    margin: 0;
+    display: flex;
+    gap: 36px;
+  }
+
+  .fact dd {
+    margin: 0;
+    font-size: 26px;
+    font-weight: 700;
+    font-family: var(--font-mono);
+    letter-spacing: -0.02em;
+  }
+
+  .fact dt {
+    margin-top: 4px;
+    font-size: 12.5px;
+    max-width: 180px;
+    line-height: 1.4;
+  }
+
+  .stack-badges {
+    margin-top: 10px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .prose {
+    margin-top: 44px;
+  }
+
+  .back {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .next-link {
+    margin-top: 72px;
+    padding-top: 28px;
+    border-top: 1px solid var(--border-ink);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .next-title {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    font-size: clamp(24px, 4vw, 32px);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    transition: color var(--transition);
+  }
+
+  .next-link:hover .next-title {
+    color: var(--accent-yellow);
+  }
+
+  @media (max-width: 767px) {
+    .project-facts {
+      grid-template-columns: 1fr;
+      gap: 24px;
+    }
+  }
+</style>

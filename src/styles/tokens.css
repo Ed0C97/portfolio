@@ -1,0 +1,48 @@
+/* Design tokens, ported from the Alatar design system (alatar-website/src/styles/tokens.css).
+   The whole palette is 8 colours: a 5-step grey scale plus 3 accents.
+   Yellow is the action colour. Fuchsia means success, blue means info and focus.
+   Dark-only build: the dark values of the original system are the defaults.
+   Fonts swapped to Google-hosted families; everything else is unchanged. */
+
+:root {
+  --grey-0: #ffffff;
+  --grey-1: #f9f9f9;
+  --grey-2: #667085;
+  --grey-3: #1a1a1a;
+  --grey-4: #000000;
+
+  --accent-yellow: #eaff00;
+  --accent-fuchsia: #ff2e97;
+  --accent-blue: #2f6bff;
+
+  --action: var(--accent-yellow);
+  --on-action: var(--grey-4);
+  --on-fuchsia: var(--grey-0);
+  --on-blue: var(--grey-0);
+  --action-soft: color-mix(in srgb, var(--accent-yellow) 25%, var(--grey-4));
+
+  --bg: var(--grey-4);
+  --bg-soft: var(--grey-3);
+  --text: var(--grey-1);
+  /* Grey-2 lightened toward grey-1: plain #667085 fails WCAG AA on the dark
+     surfaces, and muted text is most of the body copy. */
+  --text-muted: color-mix(in srgb, var(--grey-2) 55%, var(--grey-1));
+  --border-ink: var(--grey-1);
+  --border-soft: var(--grey-2);
+
+  --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, 'SF Mono', monospace;
+
+  --radius-pill: 9999px;
+  --radius-card: 22px;
+  --radius-card-sm: 18px;
+  --radius-field: 10px;
+
+  --transition: 0.15s ease;
+  --container: 1180px;
+  --header-h: 64px;
+
+  --ease-hero: cubic-bezier(0.6, 0.04, 0.015, 1);
+
+  color-scheme: dark;
+}

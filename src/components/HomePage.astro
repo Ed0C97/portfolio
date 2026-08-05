@@ -1,0 +1,293 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Hero from './Hero.astro';
+import Section from './Section.astro';
+import ProjectCard from './ProjectCard.astro';
+import ExperienceItem from './ExperienceItem.astro';
+import Badge from './Badge.astro';
+import Icon from './Icon.astro';
+import { useTranslations, localePath, type Lang } from '../i18n/ui';
+import {
+  about,
+  experience,
+  skills,
+  education,
+  certifications,
+  spokenLanguages,
+  identity,
+  hero,
+} from '../data/profile';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const t = useTranslations(lang);
+
+const featured = (
+  await getCollection('projects', (e) => e.data.lang === lang && e.data.visible && e.data.featured)
+).sort((a, b) => a.data.order - b.data.order);
+---
+
+<BaseLayout
+  lang={lang}
+  title="Edoardo Caciolo · AI & Software Engineer"
+  description={hero.tagline[lang]}
+>
+  <Hero lang={lang} />
+
+  <Section kicker={t('home.featuredKicker')} title={t('home.featuredTitle')}>
+    <div class="projects-grid">
+      {featured.map((p) => <ProjectCard project={p} lang={lang} />)}
+    </div>
+    <div class="view-all">
+      <a class="btn btn--ghost" href={localePath(lang, '/projects/')}>
+        {t('home.viewAll')} <Icon name="arrow-right" size={15} />
+      </a>
+    </div>
+  </Section>
+
+  <Section id="about" kicker={t('home.aboutKicker')} title={t('home.aboutTitle')}>
+    <div class="about-cols">
+      <div class="about-text">
+        {about[lang].map((p) => <p>{p}</p>)}
+      </div>
+      <div class="about-side card-sm">
+        <p class="kicker">{lang === 'it' ? 'Lingue' : 'Languages'}</p>
+        <ul class="side-list">
+          {
+            spokenLanguages[lang].map((l) => (
+              <li>
+                <strong>{l.name}</strong> <span class="muted">({l.level})</span>
+              </li>
+            ))
+          }
+        </ul>
+        <p class="kicker side-kicker">{lang === 'it' ? 'Base' : 'Based in'}</p>
+        <p>{identity.location[lang]}</p>
+      </div>
+    </div>
+  </Section>
+
+  <Section kicker={t('home.expKicker')} title={t('home.expTitle')}>
+    {experience[lang].map((e) => <ExperienceItem entry={e} />)}
+  </Section>
+
+  <Section kicker={t('home.skillsKicker')} title={t('home.skillsTitle')}>
+    <div class="skills">
+      {
+        skills[lang].map((group) => (
+          <div class="skill-row">
+            <p class="skill-name mono">{group.name}</p>
+            <div class="skill-badges">
+              {group.items.map((item) => (
+                <Badge label={item} tone="tech" />
+              ))}
+            </div>
+          </div>
+        ))
+      }
+    </div>
+  </Section>
+
+  <Section kicker={t('home.eduKicker')} title={t('home.eduTitle')}>
+    <div class="edu-grid">
+      {
+        education[lang].map((e) => (
+          <div class="edu-card card-sm">
+            <p class="mono muted edu-dates">{e.dates}</p>
+            <h3 class="edu-title">{e.title}</h3>
+            <p class="muted edu-org">{e.org}</p>
+            {e.detail && <p class="edu-detail">{e.detail}</p>}
+          </div>
+        ))
+      }
+    </div>
+    <ul class="cert-list">
+      {certifications.map((c) => <li>{c}</li>)}
+    </ul>
+  </Section>
+
+  <section class="section">
+    <div class="container">
+      <div class="contact-band card">
+        <div>
+          <p class="kicker">{t('home.contactKicker')}</p>
+          <h2 class="section-title">{t('home.contactTitle')}</h2>
+          <p class="muted contact-body">{t('home.contactBody')}</p>
+        </div>
+        <div class="contact-cta">
+          <a class="btn btn--lg" href={`mailto:${identity.email}`}>{t('home.contactCta')}</a>
+          <a class="btn btn--ghost btn--lg" href={identity.linkedin} target="_blank" rel="noopener noreferrer">
+            LinkedIn <Icon name="arrow-up-right" size={15} />
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .projects-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 24px;
+  }
+
+  .view-all {
+    margin-top: 32px;
+    display: flex;
+    justify-content: center;
+  }
+
+  .about-cols {
+    display: grid;
+    grid-template-columns: minmax(0, 1.8fr) minmax(0, 1fr);
+    gap: 32px;
+    align-items: start;
+  }
+
+  .about-text {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    font-size: 16.5px;
+    line-height: 1.65;
+    max-width: 640px;
+  }
+
+  .about-side {
+    padding: 24px;
+  }
+
+  .side-list {
+    margin: 10px 0 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    font-size: 14.5px;
+  }
+
+  .side-kicker {
+    margin-top: 22px;
+  }
+
+  .about-side > p:last-child {
+    margin-top: 8px;
+    font-size: 14.5px;
+    font-weight: 600;
+  }
+
+  .skills {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .skill-row {
+    display: grid;
+    grid-template-columns: 220px 1fr;
+    gap: 16px;
+    align-items: start;
+    padding: 16px 0;
+    border-top: 1px solid color-mix(in srgb, var(--border-soft) 30%, transparent);
+  }
+
+  .skill-row:first-child {
+    border-top: 1px solid var(--border-ink);
+  }
+
+  .skill-name {
+    font-size: 13px;
+    font-weight: 500;
+    padding-top: 4px;
+  }
+
+  .skill-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .edu-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+  }
+
+  .edu-card {
+    padding: 26px;
+  }
+
+  .edu-dates {
+    font-size: 12.5px;
+  }
+
+  .edu-title {
+    margin-top: 8px;
+    font-size: 18px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+
+  .edu-org {
+    margin-top: 4px;
+    font-size: 14.5px;
+  }
+
+  .edu-detail {
+    margin-top: 12px;
+    font-size: 14px;
+    line-height: 1.55;
+    color: var(--text-muted);
+  }
+
+  .cert-list {
+    margin: 28px 0 0;
+    padding-left: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    font-size: 14.5px;
+    color: var(--text-muted);
+  }
+
+  .contact-band {
+    padding: 44px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 28px;
+  }
+
+  .contact-body {
+    margin-top: 14px;
+    max-width: 420px;
+  }
+
+  .contact-cta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+  }
+
+  @media (max-width: 860px) {
+    .projects-grid,
+    .edu-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .about-cols {
+      grid-template-columns: 1fr;
+    }
+
+    .skill-row {
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+  }
+</style>

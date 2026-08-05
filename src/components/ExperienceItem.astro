@@ -1,0 +1,83 @@
+---
+import type { ExperienceEntry } from '../data/profile';
+
+interface Props {
+  entry: ExperienceEntry;
+}
+
+const { entry } = Astro.props;
+---
+
+<article class="exp">
+  <div class="exp-head">
+    <div>
+      <h3 class="exp-org">{entry.org}</h3>
+      <p class="exp-role muted">{entry.role}</p>
+    </div>
+    <div class="exp-when mono muted">
+      <span>{entry.dates}</span>
+      <span>{entry.place}</span>
+    </div>
+  </div>
+  <ul class="exp-bullets">
+    {entry.bullets.map((b) => <li>{b}</li>)}
+  </ul>
+</article>
+
+<style>
+  .exp {
+    padding: 26px 0;
+    border-top: 1px solid color-mix(in srgb, var(--border-soft) 30%, transparent);
+  }
+
+  .exp:first-of-type {
+    border-top: 1px solid var(--border-ink);
+  }
+
+  .exp-head {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 8px 24px;
+  }
+
+  .exp-org {
+    font-size: 18.5px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+
+  .exp-role {
+    margin-top: 3px;
+    font-size: 14.5px;
+    font-weight: 500;
+  }
+
+  .exp-when {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 2px;
+    font-size: 12.5px;
+    text-align: right;
+  }
+
+  .exp-bullets {
+    margin: 14px 0 0;
+    padding-left: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    font-size: 15px;
+    line-height: 1.6;
+    max-width: 760px;
+  }
+
+  @media (max-width: 640px) {
+    .exp-when {
+      align-items: flex-start;
+      text-align: left;
+    }
+  }
+</style>

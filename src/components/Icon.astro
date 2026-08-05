@@ -1,0 +1,32 @@
+---
+// Small inline SVG icon set. Never use ASCII arrows in the UI: always this
+// component, with the direction class so hover effects can target it.
+interface Props {
+  name: 'arrow-right' | 'arrow-up-right' | 'arrow-left';
+  size?: number;
+  class?: string;
+}
+
+const paths: Record<Props['name'], string> = {
+  'arrow-right': 'M2.5 8h11M9.5 4l4 4-4 4',
+  'arrow-up-right': 'M4.5 11.5l7-7M5.5 4.5h6v6',
+  'arrow-left': 'M13.5 8h-11M6.5 4l-4 4 4 4',
+};
+
+const { name, size = 16, class: cls } = Astro.props;
+---
+
+<svg
+  class:list={['icon', `icon--${name}`, cls]}
+  width={size}
+  height={size}
+  viewBox="0 0 16 16"
+  fill="none"
+  stroke="currentColor"
+  stroke-width="1.6"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+  aria-hidden="true"
+>
+  <path d={paths[name]}></path>
+</svg>

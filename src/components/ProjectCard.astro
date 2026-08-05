@@ -1,0 +1,127 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import Badge from './Badge.astro';
+import Icon from './Icon.astro';
+import { localePath, type Lang } from '../i18n/ui';
+
+interface Props {
+  project: CollectionEntry<'projects'>;
+  lang: Lang;
+}
+
+const { project, lang } = Astro.props;
+const d = project.data;
+const href = localePath(lang, `/projects/${d.slug}/`);
+---
+
+<a class="project-card card" href={href}>
+  <div class="media-frame card-media">
+    <img src={d.image} alt={`${d.title} preview`} loading="lazy" width="1200" height="675" />
+  </div>
+
+  <div class="card-body">
+    <p class="kicker">{d.category}</p>
+    <h3 class="card-title">{d.title}</h3>
+    <p class="card-oneliner muted">{d.oneLiner}</p>
+
+    <dl class="card-metrics">
+      {
+        d.metrics.map((m) => (
+          <div class="metric">
+            <dd>{m.value}</dd>
+            <dt class="muted">{m.label}</dt>
+          </div>
+        ))
+      }
+    </dl>
+
+    <div class="card-footer">
+      <Badge label={d.status} tone={d.statusTone} />
+      <span class="card-arrow"><Icon name="arrow-right" size={18} /></span>
+    </div>
+  </div>
+</a>
+
+<style>
+  .project-card {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    transition: transform var(--transition), border-color var(--transition);
+  }
+
+  .project-card:hover {
+    transform: translateY(-2px);
+  }
+
+  .card-media {
+    border: none;
+    border-bottom: 1px solid var(--border-ink);
+    border-radius: 0;
+  }
+
+  .card-body {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    padding: 22px 22px 18px;
+  }
+
+  .card-title {
+    margin-top: 8px;
+    font-size: 20px;
+    font-weight: 600;
+    letter-spacing: -0.015em;
+  }
+
+  .card-oneliner {
+    margin-top: 8px;
+    font-size: 14.5px;
+    line-height: 1.5;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .card-metrics {
+    margin: 18px 0 0;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    border-top: 1px solid color-mix(in srgb, var(--border-soft) 30%, transparent);
+    padding-top: 16px;
+  }
+
+  .metric dd {
+    margin: 0;
+    font-size: 21px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    font-family: var(--font-mono);
+  }
+
+  .metric dt {
+    margin-top: 3px;
+    font-size: 12px;
+    line-height: 1.35;
+  }
+
+  .card-footer {
+    margin-top: auto;
+    padding-top: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .card-arrow {
+    display: inline-flex;
+    color: var(--text-muted);
+    transition: color var(--transition);
+  }
+
+  .project-card:hover .card-arrow {
+    color: var(--accent-yellow);
+  }
+</style>
