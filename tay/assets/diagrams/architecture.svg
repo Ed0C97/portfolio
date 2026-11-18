@@ -1,0 +1,48 @@
+<svg viewBox="0 0 1120 440" xmlns="http://www.w3.org/2000/svg" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif">
+  <defs>
+    <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#6B7280"/>
+    </marker>
+  </defs>
+  <rect width="1120" height="440" rx="16" fill="#14161A" stroke="#2D3139" stroke-width="1.5"/>
+  <text x="40" y="48" font-size="20" font-weight="700" fill="#F3F4F6">Tay Recognition, Verification &amp; AR Pipeline</text>
+  <text x="40" y="72" font-size="13" fill="#9CA3AF">Split architecture keeping real-time camera tracking on-device and cryptographic signing on isolated backend services.</text>
+
+  <rect x="40" y="110" width="490" height="285" rx="14" fill="#1C1F26" stroke="#374151" stroke-width="1.5"/>
+  <text x="64" y="142" font-size="15" font-weight="700" fill="#F87171">On-Device Client (Swift, Vision, Core ML, RealityKit)</text>
+
+  <rect x="64" y="166" width="210" height="92" rx="10" fill="#262A34" stroke="#4B5563" stroke-width="1.2"/>
+  <text x="169" y="198" font-size="14" font-weight="700" fill="#F9FAFB" text-anchor="middle">Camera &amp; Motion Gate</text>
+  <text x="169" y="220" font-size="12" fill="#D1D5DB" text-anchor="middle">Frame stability filtering</text>
+  <text x="169" y="238" font-size="12" fill="#D1D5DB" text-anchor="middle">Core ML classification</text>
+
+  <rect x="296" y="166" width="210" height="92" rx="10" fill="#262A34" stroke="#4B5563" stroke-width="1.2"/>
+  <text x="401" y="198" font-size="14" font-weight="700" fill="#F9FAFB" text-anchor="middle">Signature Decoder</text>
+  <text x="401" y="220" font-size="12" fill="#D1D5DB" text-anchor="middle">On-device canvas check</text>
+  <text x="401" y="238" font-size="12" fill="#D1D5DB" text-anchor="middle">Location prior validation</text>
+
+  <rect x="64" y="282" width="442" height="86" rx="10" fill="#2D2226" stroke="#E85255" stroke-width="1.2"/>
+  <text x="285" y="316" font-size="14" font-weight="700" fill="#FCA5A5" text-anchor="middle">RealityKit Scene &amp; Environment State Machine</text>
+  <text x="285" y="340" font-size="12" fill="#E5E7EB" text-anchor="middle">Anchors signed USDZ 3D assets and reacts to light, motion, and streamed audio narration</text>
+
+  <rect x="590" y="110" width="490" height="285" rx="14" fill="#1C1F26" stroke="#374151" stroke-width="1.5"/>
+  <text x="614" y="142" font-size="15" font-weight="700" fill="#60A5FA">Backend Services (FastAPI, RAG, Microservices)</text>
+
+  <rect x="614" y="166" width="210" height="92" rx="10" fill="#262A34" stroke="#4B5563" stroke-width="1.2"/>
+  <text x="719" y="198" font-size="14" font-weight="700" fill="#F9FAFB" text-anchor="middle">Cultural RAG &amp; SSE</text>
+  <text x="719" y="220" font-size="12" fill="#D1D5DB" text-anchor="middle">Grounded narration &amp; Q&amp;A</text>
+  <text x="719" y="238" font-size="12" fill="#D1D5DB" text-anchor="middle">Streaming voice synthesis</text>
+
+  <rect x="846" y="166" width="210" height="92" rx="10" fill="#262A34" stroke="#4B5563" stroke-width="1.2"/>
+  <text x="951" y="198" font-size="14" font-weight="700" fill="#F9FAFB" text-anchor="middle">Canvas Signer &amp; KMS</text>
+  <text x="951" y="220" font-size="12" fill="#D1D5DB" text-anchor="middle">Invisible artwork signing</text>
+  <text x="951" y="238" font-size="12" fill="#D1D5DB" text-anchor="middle">NFC anti-clone verification</text>
+
+  <rect x="614" y="282" width="442" height="86" rx="10" fill="#1F2937" stroke="#60A5FA" stroke-width="1.2"/>
+  <text x="835" y="316" font-size="14" font-weight="700" fill="#93C5FD" text-anchor="middle">DINOv3 Visual Embedder &amp; Signed CDN Delivery</text>
+  <text x="835" y="340" font-size="12" fill="#E5E7EB" text-anchor="middle">384-dim similarity fallback + signed OTA asset manifests for verified USDZ packages</text>
+
+  <line x1="274" y1="212" x2="292" y2="212" stroke="#9CA3AF" stroke-width="1.6" marker-end="url(#arr)"/>
+  <line x1="506" y1="212" x2="610" y2="212" stroke="#9CA3AF" stroke-width="1.6" marker-end="url(#arr)"/>
+  <line x1="614" y1="325" x2="510" y2="325" stroke="#9CA3AF" stroke-width="1.6" marker-end="url(#arr)"/>
+</svg>

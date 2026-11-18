@@ -1,20 +1,14 @@
-# Keep the Claude Code local guidance files out of version control.
-.claude/CLAUDE.md
-.claude/portfolio-playbook.md
-# Python build artifacts
-__pycache__/
-*.py[cod]
+# Local assistant guidance
+.claude/
 
-# build output
-dist/
-.astro/
-
-# dependencies
-node_modules/
-
-# environment
+# Environment & credentials
 .env
 .env.*
+*.pem
+*.key
 
-# system
+# OS & editor metadata
 .DS_Store
+Thumbs.db
+.idea/
+.vscode/

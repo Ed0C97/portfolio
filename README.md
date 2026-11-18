@@ -1,115 +1,73 @@
-# Edoardo Caciolo: Project Portfolio
+# Edoardo Caciolo - Technical Portfolio
 
-> Overview documentation for my projects. **Source code is private (not published); most projects are proprietary.** These pages describe what each system does and how it is built, without the implementation. Code review available on request.
+Public technical portfolio presenting the purpose, capabilities, engineering approach, architecture, and visual results of my software, AI, and product engineering projects.
 
-**Contact:** caciolo.edoardo@gmail.com, [github.com/Ed0C97](https://github.com/Ed0C97), [linkedin.com/in/edoardo-caciolo](https://www.linkedin.com/in/edoardo-caciolo)
-
-## How to read this portfolio
-
-Projects come in two kinds, kept separate on purpose:
-
-- **Projects with code samples** carry a folder with a short README and a few IP-safe excerpts, adapted and trimmed so each file reads standalone. The excerpts show the engineering (patterns, algorithms, resilience), never the proprietary core.
-- **Additional projects** are described at the design and capability level, with no code sample published. A sample or review can be arranged on request.
-
-Images referenced by any page live in `projects/images/<project-slug>/`, never beside the code samples, so a code folder stays code only.
-
-## What the code samples demonstrate
-
-The published excerpts are chosen to show concrete engineering, each tied to the project that evidences it:
-
-- **Information retrieval and ranking**: hybrid dense-plus-sparse retrieval, Reciprocal Rank Fusion, and a cost-aware reranking funnel that degrades gracefully when a model provider is slow or down ([ARBOR](projects/arbor.md)).
-- **Control and estimation math**: Unscented Kalman Filter state estimation and LPV discretization for a vehicle control stack ([thesis](projects/tesi-triennale.md)); numerically stable Erlang-B and Erlang-C queueing for capacity planning ([ClusterMind](projects/clustermind.md)).
-- **Native Apple platforms**: real-time camera-quality signal processing and augmented-reality lifecycle handling in Swift ([Tay](projects/tay.md)); hand-laid PDF and CSV export ([Tappo](projects/tappo.md)).
-- **Resilience and operability**: circuit breakers on a monotonic clock, multi-backend secret resolution, and graceful-degradation fallbacks ([Sentinel](projects/sentinel.md), [fast-inference](projects/fast-inference.md)).
-- **Security-conscious design**: SSRF and DNS-rebinding defense on a local gateway, injection-safe SQL over a recursive CTE, and fail-closed field encryption ([BOT Garage](projects/bot-garage.md), [Alatar](projects/alatar.md)).
-- **Threat detection and intelligence**: channel-isolated SIEM alerting in ArcSight CEF that never lets one dead sink block the others ([NETWATCH](projects/netwatch.md)); cross-source entity resolution into a knowledge graph and read-only-by-construction query safety ([MINERVA](projects/minerva.md)).
-- **AI evaluation**: dependency-free IR metrics shared by an eval harness and its metrics exporters so reported and dashboarded numbers cannot drift, and a judges-off-versus-judges-on benchmark that gates a verification layer on accuracy gain, false-positive reduction, and latency overhead together ([Sentinel](projects/sentinel.md)).
-- **Trustworthy data capture**: confidence-gated OCR field extraction that persists a field only above a confidence threshold and routes weaker matches to human review ([BOT Garage](projects/bot-garage.md)).
-
-## Featured
-
-- **[ARBOR](projects/arbor.md)**: A multi-tenant AI platform that discovers, enriches, and reasons over real-world entities, combining a knowledge graph, vector search, and an event-sourced data store. The published excerpt is its search and ranking engine: hybrid retrieval with RRF fusion and a cost-aware reranking funnel that degrades gracefully when a model provider is slow or down.
-- **[Sentinel](projects/sentinel.md)**: A multi-tenant document intelligence platform for credit and risk teams that extracts, verifies, scores, and attests risk in due-diligence documentation. Every finding passes a grounding and coverage gate before acceptance, and reproducibility is enforced end to end: batch-invariant deterministic serving under multi-tenant concurrency, and extraction measured against golden sets in CI.
-- **[Alatar](projects/alatar.md)**: A career-intelligence platform that aligns a candidate's CV with a job description and returns a scored, evidence-backed match that both recruiters and candidates can audit.
-- **[Tay](projects/tay.md)**: A native Apple-platform app that recognizes physical artworks and monuments through the camera and anchors real-time augmented-reality experiences on top of them.
-- **[fast-inference](projects/fast-inference.md)**: A self-hosted, OpenAI-compatible inference server for embedding, reranking, and generation models: INT8 static quantization, hand-written Triton GPU kernels, asynchronous dynamic batching, and a benchmark harness that discovers what the current machine can run and attaches the hardware to every measurement. Ships a self-contained operator dashboard.
-- **[ClusterMind](projects/clustermind.md)**: A command-line tool that turns a short description of a web, SaaS, or self-hosted LLM service into a deterministic, auditable infrastructure capacity and cloud-cost plan.
-- **[Hybrid Multi-Layer Control for Robust Autonomous Driving](projects/tesi-triennale.md)**: A bachelor's thesis and simulation framework for a layered learning-plus-model-based control stack that keeps a Formula Student driverless race car safe and accurate when tire grip and vehicle parameters are uncertain.
-
-## Projects with code samples
-
-| Project | What it is |
-| --- | --- |
-| [Anacleto](projects/anacleto-instagram.md) | A FastAPI platform that analyzes Instagram images with vision models, optimizes feed order via MCTS, Beam Search, or Greedy strategies, schedules posts, and publishes through the Meta Graph API. |
-| [Alatar](projects/alatar.md) | A career-intelligence platform that aligns a candidate's CV with a job description and returns a scored, evidence-backed match that both recruiters and candidates can audit. |
-| [ARBOR](projects/arbor.md) | A multi-tenant AI platform that discovers, enriches, and reasons over real-world entities, combining a knowledge graph, vector search, and an event-sourced data store. |
-| [BOT Garage](projects/bot-garage.md) | A local-first workshop management application that tracks vehicle maintenance, costs, and documents, with OCR import of data straight from registration and invoice PDFs. |
-| [ClusterMind](projects/clustermind.md) | A command-line tool that turns a short description of a web, SaaS, or self-hosted LLM service into a deterministic, auditable infrastructure capacity and cloud-cost plan. |
-| [fast-inference](projects/fast-inference.md) | A self-hosted, OpenAI-compatible inference server for embedding, reranking, and generation models, built to keep retrieval-augmented generation (RAG) workloads fast and fully on-premise. Ships an operator dashboard and a benchmark harness that reports the machine behind every number. |
-| [MINERVA](projects/minerva.md) | An API-first OSINT engine that aggregates public cyber-threat data into a knowledge graph and answers natural-language questions about the threat landscape. |
-| [NETWATCH](projects/netwatch.md) | A Linux endpoint security monitor that observes process, network, and file activity at the kernel level with eBPF, scores it against rules and machine-learning models, and dispatches alerts to a dashboard and SIEM systems. |
-| [Porfirio Magazine](projects/porfirio-magazine.md) | A full-stack digital magazine platform that unifies bilingual publishing, payments, engagement analytics, and automated social-media content generation in a single product. |
-| [Sentinel](projects/sentinel.md) | A multi-tenant document intelligence platform for credit and risk teams that extracts, verifies, scores, and attests risk in due-diligence documentation, producing grounded, reproducible findings instead of free-form summaries. |
-| [Tappo](projects/tappo.md) | A native iOS app for tracking counts, habits, and goal progress across multiple projects, with Home Screen widgets and Lock Screen Live Activities that stay in sync with the app. |
-| [Tay](projects/tay.md) | A native Apple-platform app that recognizes physical artworks and monuments through the camera and anchors real-time augmented-reality experiences on top of them. |
-| [Hybrid Multi-Layer Control for Robust Autonomous Driving](projects/tesi-triennale.md) | A bachelor's thesis and simulation framework for a layered learning-plus-model-based control stack that keeps a Formula Student driverless race car safe and accurate when tire grip and vehicle parameters are uncertain. |
-
-## Academic coursework
-
-- [Academic coursework](projects/academic-coursework.md): graduate-level interactive-graphics and machine-learning assignments (Sapienza University of Rome), implemented from scratch.
+**Contact:** [caciolo.edoardo@gmail.com](mailto:caciolo.edoardo@gmail.com) | **GitHub:** [github.com/Ed0C97](https://github.com/Ed0C97) | **LinkedIn:** [linkedin.com/in/edoardo-caciolo](https://www.linkedin.com/in/edoardo-caciolo)
 
 ---
 
-_© 2026 Edoardo Caciolo, all rights reserved. Source code is private and available for review on request._
+## How This Portfolio Is Organized
 
-# Edoardo Caciolo · Portfolio
+Most projects presented here are proprietary SaaS platforms, vertical AI systems, or client products whose production repositories remain private to protect intellectual property.
 
-Personal portfolio site. Bilingual (EN default, IT under `/it/`), dark theme only, static build, zero client-side frameworks. Built with [Astro 5](https://astro.build). The design system (palette, radii, buttons, badges, cards) is ported from the Alatar project's `tokens.css`: 5 greys plus 3 accents, flat surfaces with 1px ink borders, yellow as the only action colour. UI arrows are always the inline SVG `Icon.astro` component (never text arrows), so hover motion stays consistent.
+Each folder in this repository acts as a self-contained **project showcase** following the same 8-section structure (`Project Overview`, `Objectives`, `Key Features`, `Development Approach`, `Architecture Overview`, `Screenshots & Demonstrations`, `Code Samples`, `Results`) and visual asset layout (`assets/previews/`, `assets/screenshots/`, `assets/diagrams/`), so any project can be understood in roughly 10 seconds.
 
-## Commands
+For open academic projects, direct links to the full public source repositories are provided alongside their standardized showcase pages.
 
-```bash
-npm install        # once
-npm run dev        # http://localhost:4321
-npm run build      # static output in dist/
-npm run preview    # serve dist/ locally
+---
+
+## AI, Data & SaaS Platforms
+
+| Project | Domain | What It Does | Core Stack |
+| :--- | :--- | :--- | :--- |
+| **[Sentinel](sentinel/README.md)** | Enterprise Due Diligence & Risk | Extracts, verifies, scores, and cryptographically attests risk across credit, legal, and M&A dossiers with multi-stage citation grounding. | Python, FastAPI, PostgreSQL, Neo4j, Vector Search, vLLM |
+| **[ARBOR](arbor/README.md)** | Vertical AI & Knowledge Graph | Discovers, curates, and connects 270 verified luxury ateliers, heritage brands, and cultural venues through hybrid retrieval and ontological reasoning. ([Live](https://arbor.porfiriomagazine.it)) | Python, FastAPI, React, Cloudflare Workers, Neo4j, Qdrant |
+| **[Alatar](alatar/README.md)** | Career Intelligence & HR Tech | Aligns candidate CVs with job descriptions and returns scored, citation-backed match assessments auditable by both recruiters and candidates. | Python, FastAPI, Next.js, TypeScript, PostgreSQL |
+| **[George](george/README.md)** | FinTech & Tax Compliance | 100% deterministic Italian *Regime Forfettario* platform uniting ATECO 2025 orientation, multi-scenario net-pay simulation, and XSD-validated FatturaPA e-invoicing. | Python, FastAPI, Next.js, TypeScript, PostgreSQL, Typst |
+| **[13 Medical Record](13-medical-record/README.md)** | Digital Health & Encrypted Vault | Encrypted personal and family health vault with in-memory OCR biomarker extraction, multi-year longitudinal blood matrices, molecular allergy panels, and deductible expense tracking. | Python, FastAPI, Next.js, PostgreSQL (`FORCE RLS`), Vision OCR |
+| **[Piero](piero/README.md)** | Local-First Workshop Software | Local-first multi-vehicle garage and maintenance manager featuring spare-parts inventory, suspendable insurance math, confidence-gated OCR import, and an offline AI assistant. | Python, SQLite / PostgreSQL, Local Ollama, Whisper, Vision OCR |
+
+---
+
+## Media, Connected Products, Native AR & Client Web
+
+| Project | Domain | What It Does | Core Stack |
+| :--- | :--- | :--- | :--- |
+| **[Porfirio Magazine](porfirio-magazine/README.md)** | Digital Publishing & Edge Media | Bilingual (IT/EN) editorial platform and 270-venue interactive directory running at the edge and synchronized 1:1 with ARBOR. ([Live](https://porfiriomagazine.it)) | React, Python, Cloudflare Workers, D1, R2, Capacitor |
+| **[Fourth Form](fourth-form/README.md)** | Connected Garments & NFC Provenance | Editorial platform and NFC chain-of-custody archive for numbered Italian wearable-art garments, featuring OTP ownership transfers and a 2D mockup studio. ([Live](https://fourthform.it)) | Next.js, React, TypeScript, Cloudflare Workers, D1, R2 |
+| **[Tay](tay/README.md)** | Native Apple AR & Computer Vision | Multi-platform Swift AR application and microservice pipeline for on-device artwork/monument recognition, steganographic canvas verification, and grounded audio narration. | Swift, RealityKit, Core ML, FastAPI, DINOv3, PostgreSQL |
+| **[Client Web Platforms](web-projects/README.md)** | Bespoke Client Web Engineering | Two token-driven production web platforms: **Differo** (curated Rome/Milan direct-booking hospitality) and **Dott.ssa Federica Palmieri** (WCAG 2.2 AA & CNOP-compliant clinical psychology, [Live](https://www.federicapalmieridoc.it)). | Next.js, React, TypeScript, CSS Tokens, Zod, Cloudflare |
+
+---
+
+## Open Academic Projects (Full Source Public)
+
+| Project | Showcase | Full Source Repository | Summary |
+| :--- | :--- | :--- | :--- |
+| **Interactive Graphics Projects** | **[Showcase](interactive-graphics/README.md)** | **[Ed0C97/marr-interactive-graphics-projects](https://github.com/Ed0C97/marr-interactive-graphics-projects)** | Six dependency-free browser implementations covering alpha compositing, 2D affine transforms, WebGL textured meshes, Blinn-Phong shading, GLSL GPU ray tracing, and mass-spring physics (Sapienza MSc Robotics & AI). |
+| **Machine Learning Projects** | **[Showcase](machine-learning/README.md)** | **[Ed0C97/marr-ml-projects](https://github.com/Ed0C97/marr-ml-projects)** | Six-classifier accuracy-vs-compute benchmark on high-dimensional tabular data and closed-loop CNN autonomous driving policies in Gymnasium `CarRacing-v2` (Sapienza MSc Robotics & AI). |
+
+---
+
+## Repository Structure
+
+```text
+portfolio/
+├── README.md                     # Master portfolio index
+├── 13-medical-record/            # Encrypted personal & family medical vault
+├── alatar/                       # Explainable CV-to-job career intelligence
+├── arbor/                        # Multi-tenant ontological entity discovery
+├── fourth-form/                  # Wearable art & NFC chain-of-custody platform
+├── george/                       # Deterministic Italian tax & FatturaPA SaaS
+├── interactive-graphics/         # WebGL, GLSL ray tracing & physics (links to public repo)
+├── machine-learning/             # Classifier benchmarks & CNN control (links to public repo)
+├── piero/                        # Local-first multi-vehicle workshop manager
+├── porfirio-magazine/            # Bilingual digital magazine & 270-venue edge directory
+├── sentinel/                     # Grounded enterprise due-diligence & risk platform
+├── tay/                          # Native Apple AR cultural guide & canvas verification
+└── web-projects/                 # Differo hospitality & Dott.ssa Federica Palmieri platforms
 ```
 
-## How content works
+---
 
-Every project is a pair of markdown files in `src/content/projects/`:
-
-```
-sentinel.en.md
-sentinel.it.md
-```
-
-The frontmatter drives everything; the two switches you will actually touch:
-
-| Field      | Effect                                                        |
-| ---------- | ------------------------------------------------------------- |
-| `visible`  | `false` removes the project from the whole site               |
-| `featured` | `true` shows it on the home page grid (keep it to 6-8)        |
-| `order`    | Sort position everywhere (1 = first)                          |
-
-To add a project: copy an existing pair, change the frontmatter, write the five body sections (The problem / What I built / How it works / Results / Limits and what I'd redo). Both language files must exist.
-
-Facts policy: every number and status comes from the verified content library in the CV repository (`CV/cv_master/content/`). Never promote a status, never add unmeasured metrics. No em dash anywhere.
-
-## Images
-
-All project images are placeholders in `public/images/projects/<slug>.svg` (1200x675, 16:9). Replace each with a real screenshot or render at the same path, any format (`.png`, `.webp`, `.jpg`), then update the `image:` field in both language files of that project.
-
-The typewriter roles, hero stats, about, experience, skills and education all live in `src/data/profile.ts`. UI strings (nav, section titles, buttons) live in `src/i18n/ui.ts`.
-
-## Language
-
-EN at `/`, IT at `/it/`; the header toggle maps the current page to its twin. The site is dark-only: all colours live in `src/styles/tokens.css`, nothing is hardcoded in components.
-
-## Deploying later (GitHub Pages)
-
-The site is local-only for now. When you decide to publish:
-
-1. Set `site` in `astro.config.mjs` (e.g. `https://ed0c97.github.io`) and, if the repo is not `<user>.github.io`, also `base: '/<repo-name>'`.
-2. Push to GitHub and enable Pages with the official Astro GitHub Action (`withastro/action`).
-3. Custom domain: set `site` to the domain, add the `CNAME` file in `public/`.
+_Copyright (c) 2026 Edoardo Caciolo. Proprietary project showcases are shared for technical evaluation; original production source code remains private and is available for review upon request._
