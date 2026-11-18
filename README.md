@@ -36,7 +36,7 @@ For open academic projects, direct links to the full public source repositories 
 | **[Porfirio Magazine](porfirio-magazine/README.md)** | Digital Publishing & Edge Media | Bilingual (IT/EN) editorial platform and 270-venue interactive directory running at the edge and synchronized 1:1 with ARBOR. ([Live](https://porfiriomagazine.it)) | React, Python, Cloudflare Workers, D1, R2, Capacitor |
 | **[Fourth Form](fourth-form/README.md)** | Connected Garments & NFC Provenance | Editorial platform and NFC chain-of-custody archive for numbered Italian wearable-art garments, featuring OTP ownership transfers and a 2D mockup studio. ([Live](https://fourthform.it)) | Next.js, React, TypeScript, Cloudflare Workers, D1, R2 |
 | **[Tay](tay/README.md)** | Native Apple AR & Computer Vision | Multi-platform Swift AR application and microservice pipeline for on-device artwork/monument recognition, steganographic canvas verification, and grounded audio narration. | Swift, RealityKit, Core ML, FastAPI, DINOv3, PostgreSQL |
-| **[Client Web Platforms](web-projects/README.md)** | Bespoke Client Web Engineering | Two token-driven production web platforms: **Differo** (curated Rome/Milan direct-booking hospitality) and **Dott.ssa Federica Palmieri** (WCAG 2.2 AA & CNOP-compliant clinical psychology, [Live](https://www.federicapalmieridoc.it)). | Next.js, React, TypeScript, CSS Tokens, Zod, Cloudflare |
+| **[Client Web Platforms](web-projects/README.md)** | Bespoke Client Web Engineering | Two token-driven production web platforms: **Differo** (curated Rome/Milan direct-booking hospitality) and a **Clinical Psychology Practice** platform (WCAG 2.2 AA & CNOP-compliant). | Next.js, React, TypeScript, CSS Tokens, Zod, Cloudflare |
 
 ---
 
@@ -65,7 +65,7 @@ portfolio/
 ├── porfirio-magazine/            # Bilingual digital magazine & 270-venue edge directory
 ├── sentinel/                     # Grounded enterprise due-diligence & risk platform
 ├── tay/                          # Native Apple AR cultural guide & canvas verification
-└── web-projects/                 # Differo hospitality & Dott.ssa Federica Palmieri platforms
+└── web-projects/                 # Differo hospitality & clinical psychology web platforms
 ```
 
 ---

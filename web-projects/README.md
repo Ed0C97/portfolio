@@ -1,10 +1,10 @@
-# Client Web Platforms (Differo & Dott.ssa Federica Palmieri)
+# Client Web Platforms (Differo & Clinical Psychology Practice)
 
 > **Two production client web platforms engineered on strict CSS design-token systems, Next.js edge runtimes, and domain-specific compliance and booking workflows.**
 
 ![Differo Immersive Hospitality Hero](assets/previews/hero.png)
 
-**Category:** Bespoke Client Web Engineering | **Core Stack:** Next.js, React, TypeScript, CSS Modules & Design Tokens, Zod, Cloudflare Workers / OpenNext | **Live Reference:** [federicapalmieridoc.it](https://www.federicapalmieridoc.it) | **Navigation:** [Back to Portfolio](../README.md)
+**Category:** Bespoke Client Web Engineering | **Core Stack:** Next.js, React, TypeScript, CSS Modules & Design Tokens, Zod, Cloudflare Workers / OpenNext | **Navigation:** [Back to Portfolio](../README.md)
 
 ---
 
@@ -13,10 +13,10 @@
 This showcase groups two custom production web platforms built for distinct regulated and high-touch service domains:
 
 1. **Differo s.r.l. (*Immersive Hospitality*):** Direct-inquiry and portfolio platform presenting curated residences in Rome and Milan, designed to connect guests and property owners directly without marketplace intermediaries.
-2. **Dott.ssa Federica Palmieri (*Clinical Psychology*):** Professional healthcare web platform ([federicapalmieridoc.it](https://www.federicapalmieridoc.it)) built for clinical sobriety, WCAG 2.2 AA accessibility, and full compliance with Italian psychology ethics and healthcare advertising guidelines (CNOP).
+2. **Clinical Psychology Practice:** Professional healthcare web platform built for a licensed clinical psychologist in Rome and online, emphasizing clinical sobriety, WCAG 2.2 AA accessibility, and full compliance with Italian psychology ethics and healthcare advertising guidelines (CNOP).
 
 - **Main purpose:** Deliver fast, maintainable, brand-specific web platforms with zero third-party tracking bloat.
-- **Primary use case:** Direct hospitality availability management (Differo) and accessible, privacy-first clinical intake (Dott.ssa Federica Palmieri).
+- **Primary use case:** Direct hospitality availability management (Differo) and accessible, privacy-first clinical intake (Clinical Psychology Practice).
 - **Source code policy:** This folder is a public technical showcase. Client repositories and operational configurations remain private.
 
 ---
@@ -35,8 +35,8 @@ Off-the-shelf page builders introduce heavy client bundles, third-party trackers
 
 - **Differo - 5-Stage Direct Inquiry & Admin Backoffice:** Guides guests from date/capacity validation through protected backoffice review (`Pending`, `Confirmed`, `Unavailable`) and automated transactional emails linking verified booking channels or alternative residences.
 - **Differo - Multi-City Portfolio & 12-Language UI:** Filterable property catalog across Rome and Milan with architectural spec sheets, native Light/Dark themes, and instant client-side switching across 12 languages.
-- **Palmieri - CNOP & WCAG 2.2 AA Clinical Design:** Calibrated high-contrast editorial palette (`>= 4.5:1`), structured professional registration disclosures, and accessible WAI-ARIA mobile navigation.
-- **Palmieri - Build-Time Zod Content Gate & Hardened Security:** Validates all clinical copy, SEO metadata, and legal notices before production builds, paired with per-request cryptographic CSP nonces and `HMAC-SHA256` signed contact forms.
+- **Clinical Practice - CNOP & WCAG 2.2 AA Design:** Calibrated high-contrast editorial palette (`>= 4.5:1`), structured professional registration disclosures, and accessible WAI-ARIA mobile navigation.
+- **Clinical Practice - Build-Time Zod Content Gate & Hardened Security:** Validates all clinical copy, SEO metadata, and legal notices before production builds, paired with per-request cryptographic CSP nonces and `HMAC-SHA256` signed contact forms.
 - **Shared Mobile Touch-Hold Contrast UX:** Smoothly dims background photography during touch-hold or scroll gestures on smartphones to keep overlaid typography legible.
 
 ---
@@ -72,13 +72,15 @@ flowchart LR
 
 ## Screenshots & Demonstrations
 
-| Differo: Curated Hospitality Hero | Differo: Residence Detail (`Nazionale Skyloft`) |
+| Differo: Curated Hospitality Hero (Light) | Differo: Curated Hospitality Hero (Dark) |
 | :--- | :--- |
-| ![Differo Hero](assets/screenshots/01-differo-hospitality-hero.png)<br><sub>Full-bleed opening showcasing Rome and Milan residences, language selector, Dark Mode toggle, and direct availability CTA.</sub> | ![Differo Residence Detail](assets/screenshots/02-differo-residence-detail.png)<br><sub>Dedicated residence view combining architectural metadata, photo gallery, and pre-linked availability request workflow.</sub> |
+| ![Differo Hero Light](assets/screenshots/01-differo-hospitality-hero.png)<br><sub>Full-bleed opening showcasing Rome and Milan residences, language selector, theme toggle, and direct availability CTA.</sub> | ![Differo Hero Dark](assets/screenshots/04-differo-hero-dark.png)<br><sub>Token-driven dark-theme variant preserving typographic contrast and translucent navigation hierarchy.</sub> |
 
-| Dott.ssa Federica Palmieri: Clinical Positioning | Dott.ssa Federica Palmieri: Credentials & Method |
+| Differo: Residences Portfolio | Differo: Residence Detail (`Nazionale Skyloft`) |
 | :--- | :--- |
-| ![Federica Palmieri Hero](assets/screenshots/03-palmieri-clinical-hero.png)<br><sub>High-contrast editorial opening presenting clinical qualifications, Rome and online practice modes, and first-consultation access.</sub> | ![Federica Palmieri Credentials](assets/screenshots/04-palmieri-credentials-section.png)<br><sub>Asymmetric three-column biography highlighting official Order registration, clinical specialization, and therapeutic approach.</sub> |
+| ![Differo Portfolio](assets/screenshots/03-differo-portfolio.png)<br><sub>Filterable residence grid displaying capacity, room breakdown, and direct inquiry actions.</sub> | ![Differo Residence Detail](assets/screenshots/02-differo-residence-detail.png)<br><sub>Dedicated residence view combining architectural metadata, photo gallery, and pre-linked availability request workflow.</sub> |
+
+*(Screenshots of the Clinical Psychology Practice platform are omitted to protect client identity; its design-token, WCAG 2.2 AA, and security architecture is detailed above.)*
 
 ---
 
